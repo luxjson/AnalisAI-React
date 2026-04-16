@@ -1,0 +1,157 @@
+:root {
+    --primary-red: #ff0101;
+    --bg-dark: #080808;
+    --card-bg: #0c0c0c;
+    --text-white: #ffffff;
+    --text-muted: #888;
+    --text-description: #aaa;
+    --font-family: 'Inter-Medium', sans-serif;
+    --border-color: #1a1a1a;
+}
+
+@font-face {
+    font-family: 'Inter-Medium';
+    src: url('../FONTs/Inter-Medium.woff') format('woff');
+}
+
+@keyframes fadeInPage {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    font-weight: normal;
+    box-sizing: border-box;
+    font-family: var(--font-family);
+}
+
+body.termos-body {
+    background-color: var(--bg-dark);
+    color: var(--text-white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 20px;
+    animation: fadeInPage 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.termos-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 580px;
+}
+
+.logo-termos {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.logo-termos img {
+    width: 180px;
+    height: auto;
+}
+
+.logo-termos h2 {
+    font-size: 0.7rem;
+    letter-spacing: 4px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-top: 10px;
+}
+
+.termos-container {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    padding: 30px;
+    width: 100%;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+}
+
+.termos-content {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    margin-bottom: 25px;
+    max-height: 40vh;
+    overflow-y: auto;
+    padding-right: 15px;
+    scrollbar-width: thin;
+    scrollbar-color: #333 transparent;
+}
+
+.termos-content p {
+    line-height: 1.6;
+    font-size: 0.85rem;
+    color: var(--text-description);
+    text-align: justify;
+}
+
+.termos-content strong {
+    color: var(--primary-red);
+    letter-spacing: 0.5px;
+}
+
+.button-area {
+    display: flex;
+    justify-content: center;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    padding-top: 20px;
+}
+
+.btn-voltar {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    color: var(--text-muted);
+    border: 1px solid #222;
+    border-radius: 10px;
+    padding: 10px 35px;
+    font-size: 0.75rem;
+    letter-spacing: 1.5px;
+    transition: all 0.4s ease;
+    background: transparent;
+    text-transform: uppercase;
+}
+
+.btn-voltar:hover {
+    border-color: var(--primary-red);
+    color: var(--text-white);
+    background: rgba(255, 1, 1, 0.05);
+    transform: translateY(-2px);
+}
+
+.termos-content::-webkit-scrollbar {
+    width: 4px;
+}
+
+.termos-content::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.termos-content::-webkit-scrollbar-thumb {
+    background: #222;
+    border-radius: 10px;
+}
+
+.termos-content::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-red);
+}
+
+@media (max-width: 600px) {
+    .termos-container {
+        padding: 25px 20px;
+    }
+    .logo-termos img {
+        width: 150px;
+    }
+    .termos-content p {
+        font-size: 0.8rem;
+    }
+}
