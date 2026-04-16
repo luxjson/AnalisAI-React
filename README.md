@@ -10,11 +10,9 @@
 
 ### Estrutura do Subsistema (`/src`)
 
-- [`config/`](./src/config) - Protocolos de conexão com o Banco de Dados.
-- [`controllers/`](./src/controllers) - Lógica de processamento e roteamento de dados.
-- [`models/`](./src/models) - Estruturas de Queries SQL e abstração de dados.
-- [`public/`](./src/public) - Ativos estáticos e estilização Neo-brutalista.
-- [`views/`](./src/views) - Templates dinâmicos via EJS Engine.
+- [`src/`](./src) - Pasta de arquivos do site.
+- [`public/`](./public) - Ativos estáticos e estilização Neo-brutalista.
+- [`server/`](./server) - Servidor em que o site está sendo rodado.
 
 <div align="center"> 
 <sub>Built with ☕ and 🌙 by LukzST</sub>
