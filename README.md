@@ -1,4 +1,4 @@
-<img src="https://github.com/LukzST/AnalisAI-Express/blob/main/frontend/Public/IMG/gitlogo.png" width="100px" align="left">
+<img src="https://github.com/luxjson/AnalisAI-React/blob/main/frontend/public/IMG/gitlogo.png" width="100px" align="left">
 
 ### `AnalisAI - With React + Vite`
 
