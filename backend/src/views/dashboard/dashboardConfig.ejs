@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AnalisAI - Configurações</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/CSS/sidebar.css">
+    <link rel="stylesheet" href="/CSS/dashboard.css">
+    <style>
+
+        * {
+            font-family: 'helvetica', sans-serif;
+        }
+        .perfil-grid {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 30px;
+            align-items: start;
+        }
+        .perfil-sidebar-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 40px;
+            padding: 45px 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .perfil-sidebar-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 50%;
+            transform: translateX(-50%);
+            width: 60px; height: 4px;
+            background: var(--primary-red);
+            border-radius: 0 0 10px 10px;
+        }
+
+        .avatar-circle {
+            width: 120px; height: 120px;
+            background: var(--primary-red);
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3.5rem;
+            color: white;
+            font-weight: 800;
+        }
+
+        .perfil-stats-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 30px 0;
+            padding: 20px;
+            background: #111;
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+        }
+
+        .stat-item span { display: block; color: var(--text-muted); font-size: 0.65rem; text-transform: uppercase; margin-bottom: 5px; }
+        .stat-item strong { font-size: 1.6rem; color: white; font-weight: 900; }
+
+        .tabs-container {
+            display: flex;
+            gap: 10px;
+            background: var(--bg-dark);
+            padding: 8px;
+            border-radius: 100px;
+            margin-bottom: 35px;
+            border: 1px solid var(--border-color);
+        }
+
+        .tab-trigger {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            background: transparent;
+            color: var(--text-gray);
+            border-radius: 100px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            transition: 0.3s;
+        }
+
+        .tab-trigger.active {
+            background: var(--primary-red);
+            color: white;
+        }
+
+        .perfil-main {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 40px;
+            padding: 40px;
+        }
+
+        .tab-content { display: none; animation: slideUp 0.4s ease forwards; }
+        .tab-content.active { display: block; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+
+        .info-display-item {
+            background: #111;
+            border: 1px solid var(--border-color);
+            padding: 18px 25px;
+            border-radius: 18px;
+            margin-bottom: 15px;
+        }
+
+        .info-display-item label { color: var(--text-muted); font-size: 0.7rem; text-transform: uppercase; margin-bottom: 5px; display: block; }
+        .info-display-item .value { color: white; font-size: 1rem;display: flex; align-items: center; gap: 12px; }
+        .info-display-item i { color: var(--primary-red); width: 20px; }
+
+        .toggle-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 30px;
+            background: #111;
+            border-radius: 25px;
+            margin-bottom: 15px;
+            border: 1px solid var(--border-color);
+        }
+
+        .toggle-switch {
+            width: 55px; height: 28px; background: #333; border-radius: 30px; position: relative; cursor: pointer; transition: .3s;
+        }
+        .toggle-switch::after {
+            content: ""; position: absolute; height: 20px; width: 20px; left: 4px; bottom: 4px; background: white; border-radius: 50%; transition: .3s;
+        }
+        .toggle-switch.ativo { background: var(--primary-red); }
+        .toggle-switch.ativo::after { left: 31px; }
+
+        .mensagem-sucesso {
+            display: none;
+            background: rgba(255, 1, 1, 0.1);
+            color: var(--primary-red);
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid var(--primary-red);
+            margin-bottom: 20px;
+            align-items: center; gap: 10px;
+        }
+
+        .form-input-premium {
+            width: 100%;
+            background: #111;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 15px;
+            color: white;
+            margin-top: 10px;
+            outline: none;
+        }
+        .form-input-premium:focus { border-color: var(--primary-red); }
+
+        @media (max-width: 1000px) { .perfil-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body class="dash-body">
+    <%- include('../partials/barProfessor') %>
+    
+    <div class="main-layout">
+       <header class="dash-header">
+            <div class="header-left">
+                <h1>
+                    Configurações
+                </h1>
+            </div>
+            
+            <div class="header-user">
+                <div class="user-profile-group">
+                    <div class="user-details">
+                        <span class="user-name"><strong><%= user %></strong></span>
+                        <span class="user-role" style="color: #888888;"><strong><%= userCargo %></strong></span>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <%- include('../partials/notificacoes', { notificacaoClasse: 'header-icon' }) %>
+                     
+                </div>
+            </div>
+        </header>
+        
+        <main class="dash-content">
+            <div class="perfil-grid">
+                <aside class="perfil-sidebar-card">
+                    <div class="avatar-circle">
+                        <%= user.charAt(0).toUpperCase() %>
+                    </div>
+                    
+                    <div class="perfil-info-base">
+                        <h2 style="color: white;"><%= user %></h2>
+                        <p style="color: var(--text-gray);"><%= cargo %></p>
+                    </div>
+
+                    <div class="perfil-stats-row">
+                        <div class="stat-item">
+                            <span>Tarefas</span>
+                            <strong><%= stats.tarefas || 0 %></strong>
+                        </div>
+                        <div class="stat-item">
+                            <span>Alunos</span>
+                            <strong><%= stats.alunos || 0 %></strong>
+                        </div>
+                    </div>
+
+                    <div style="text-align: left; padding: 0 10px;">
+                        <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 10px;">
+                            <span style="color: var(--text-gray);">Status:</span>
+                            <span class="media-nota apto" style="background: rgba(33,115,70,0.1); color: #217346; font-size: 0.6rem; padding: 2px 10px; border-radius: 5px;">ATIVO</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; font-size: 0.85rem;">
+                            <span style="color: var(--text-gray);">Último Acesso:</span>
+                            <span style="color: white;"><%= ultimoAcesso || '---' %></span>
+                        </div>
+                    </div>
+                </aside>
+                
+                <div class="perfil-main">
+                    <div id="mensagemSucesso" class="mensagem-sucesso">
+                        <i class="fas fa-check-circle"></i> Preferências salvas com sucesso!
+                    </div>
+
+                    <nav class="tabs-container">
+                        <button class="tab-trigger <%= abaAtiva === 'dados' ? 'active' : '' %>" onclick="mudarAba('dados')">Meus Dados</button>
+                        <button class="tab-trigger <%= abaAtiva === 'notificacoes' ? 'active' : '' %>" onclick="mudarAba('notificacoes')">Notificações</button>
+                        <button class="tab-trigger <%= abaAtiva === 'senha' ? 'active' : '' %>" onclick="mudarAba('senha')">Segurança</button>
+                    </nav>
+                    
+                    <div id="abaDados" class="tab-content <%= abaAtiva === 'dados' ? 'active' : '' %>">
+                        <div class="info-grid">
+                            <div class="info-display-item"><label>Nome Completo</label><div class="value"><i class="fas fa-user"></i> <%= user %></div></div>
+                            <div class="info-display-item"><label>E-mail Institucional</label><div class="value"><i class="fas fa-envelope"></i> <%= email %></div></div>
+                            <div class="info-display-item"><label>Cargo / Função</label><div class="value"><i class="fas fa-briefcase"></i> <%= cargo %></div></div>
+                        </div>
+                    </div>
+                    
+                    <div id="abaNotificacoes" class="tab-content <%= abaAtiva === 'notificacoes' ? 'active' : '' %>">
+                        <form id="configForm">
+                            <div class="toggle-item">
+                                <div><h4 style="color: white;">Alertas de Sistema</h4><p style="color: #666;">Notificações globais da plataforma</p></div>
+                                <div class="toggle-switch <%= config.notificacoes_ativas ? 'ativo' : '' %>" data-input="notificacoes_ativas"></div>
+                                <input type="hidden" name="notificacoes_ativas" id="notificacoes_ativas" value="<%= config.notificacoes_ativas %>">
+                            </div>
+                            
+                            <div class="toggle-item">
+                                <div><h4 style="color: white;">Atividades de Alunos</h4><p style="color: #666;">Avisar sobre novas entregas e tarefas</p></div>
+                                <div class="toggle-switch <%= config.notificacoes_tarefas ? 'ativo' : '' %>" data-input="notificacoes_tarefas"></div>
+                                <input type="hidden" name="notificacoes_tarefas" id="notificacoes_tarefas" value="<%= config.notificacoes_tarefas %>">
+                            </div>
+
+                            <input type="hidden" name="notificacoes_avaliacoes" id="notificacoes_avaliacoes" value="<%= config.notificacoes_avaliacoes %>">
+                            <input type="hidden" name="notificacoes_competencias" id="notificacoes_competencias" value="<%= config.notificacoes_competencias %>">
+                        </form>
+                        
+                        <button class="btn-secondary-dash" onclick="salvarConfiguracoes()" >
+                            <i class="fas fa-save"></i> SALVAR CONFIGURAÇÕES
+                        </button>
+                    </div>
+                    
+                    <div id="abaSenha" class="tab-content <%= abaAtiva === 'senha' ? 'active' : '' %>">
+                        <% if (success_msg && success_msg.length > 0) { %>
+                            <div class="alert alert-success" style="background: rgba(33,115,70,0.1); border-color: #217346; color: #217346; padding: 15px; border-radius: 12px; margin-bottom: 20px;">
+                                <i class="fas fa-check-circle"></i> <%= success_msg %>
+                            </div>
+                        <% } %>
+            
+                        <% if (error_msg && error_msg.length > 0) { %>
+                            <div class="alert alert-error" style="background: rgba(255,1,1,0.1); border-color: var(--primary-red); color: var(--primary-red); padding: 15px; border-radius: 12px; margin-bottom: 20px;">
+                                <i class="fas fa-exclamation-circle"></i> <%= error_msg %>
+                            </div>
+                        <% } %>
+
+                        <form class="senha-form" action="/dashboard/alterar-senha" method="POST" style="max-width: 500px;">
+                            <label style="color: #666; font-size: 0.7rem;">SENHA ATUAL</label>
+                            <input type="password" name="senha_atual" class="form-input-premium" required>
+                            
+                            <label style="color: #666; font-size: 0.7rem;margin-top: 20px; display: block;">NOVA SENHA</label>
+                            <input type="password" name="nova_senha" class="form-input-premium" required minlength="6" placeholder="Mínimo 6 caracteres">
+                            
+                            <label style="color: #666; font-size: 0.7rem; margin-top: 20px; display: block;">CONFIRMAR NOVA SENHA</label>
+                            <input type="password" name="confirmar_senha" class="form-input-premium" required>
+                            
+                            <button type="submit" class="btn-secondary-dash" style="margin-top: 30px; ">
+                                <i class="fas fa-key"></i> ATUALIZAR SENHA
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script>
+        function mudarAba(abaId) {
+            document.querySelectorAll('.tab-trigger').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            const btnIdx = { 'dados': 0, 'notificacoes': 1, 'senha': 2 };
+            document.querySelectorAll('.tab-trigger')[btnIdx[abaId]].classList.add('active');
+            document.getElementById('aba' + abaId.charAt(0).toUpperCase() + abaId.slice(1)).classList.add('active');
+
+            const url = new URL(window.location);
+            url.searchParams.set('aba', abaId);
+            window.history.pushState({}, '', url);
+        }
+        
+        document.querySelectorAll('.toggle-switch').forEach(toggle => {
+            toggle.addEventListener('click', function() {
+                this.classList.toggle('ativo');
+                const inputId = this.getAttribute('data-input');
+                const input = document.getElementById(inputId);
+                if (input) {
+                    input.value = this.classList.contains('ativo');
+                }
+            });
+        });
+        
+        function salvarConfiguracoes() {
+            const config = {
+                notificacoes_ativas: document.getElementById('notificacoes_ativas').value === 'true',
+                notificacoes_tarefas: document.getElementById('notificacoes_tarefas').value === 'true',
+                notificacoes_avaliacoes: document.getElementById('notificacoes_avaliacoes').value === 'true',
+                notificacoes_competencias: document.getElementById('notificacoes_competencias').value === 'true'
+            };
+            
+            fetch('/api/configuracoes-notificacoes', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(config)
+            })
+            .then(response => response.json())
+            .then(data => {
+                const msg = document.getElementById('mensagemSucesso');
+                msg.style.display = 'flex';
+                setTimeout(() => { msg.style.display = 'none'; }, 3000);
+            })
+            .catch(error => alert('Erro ao salvar configurações'));
+        }
+    </script>
+</body>
+</html>

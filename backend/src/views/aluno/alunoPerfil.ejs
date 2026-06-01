@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AnalisAI - Meu Perfil</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/CSS/sidebar.css">
+    <link rel="stylesheet" href="/CSS/dashboard.css">
+    <link rel="stylesheet" href="/CSS/edit.css">
+    <style>
+        :root {
+            --student-green: #217346;
+            --student-green-hover: #1b5e38;
+        }
+
+        .perfil-grid {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 30px;
+            align-items: start;
+        }
+
+        .perfil-sidebar-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 40px;
+            padding: 45px 30px;
+            text-align: center;
+        }
+
+        .avatar-circle {
+            width: 130px; height: 130px;
+            background: var(--student-green);
+            border-radius: 50%;
+            margin: 0 auto 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3.8rem;
+            color: white;
+        }
+
+        .perfil-info-base h2 { color: white; margin-bottom: 5px; }
+        .perfil-info-base p { color: var(--text-gray); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; }
+
+        .perfil-stats-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 30px 0;
+            padding: 20px;
+            background: #111;
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+        }
+
+        .stat-item span { 
+            display: block; 
+            color: var(--text-muted); 
+            font-size: 0.65rem; 
+            text-transform: uppercase; 
+            margin-bottom: 5px; 
+        }
+        .stat-item strong { 
+            font-size: 1.6rem; 
+            color: white; 
+        }
+
+        .perfil-main {
+            background: var(--card-bg); 
+            border: 1px solid var(--border-color);
+            border-radius: 40px;
+            padding: 40px;
+        }
+
+        .tabs-nav {
+            display: flex;
+            gap: 10px;
+            background: #131314;
+            padding: 8px;
+            border-radius: 200000px;
+            margin-bottom: 35px;
+            border: 1px solid var(--border-color);
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 12px;
+            background: transparent;
+            border: none;
+            color: var(--text-gray);
+            border-radius: 10000px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            transition: 0.3s;
+        }
+
+        .tab-btn.active {
+            background: var(--student-green);
+            color: white;
+        }
+
+        .tab-content { display: none; animation: slideUp 0.4s ease forwards; }
+        .tab-content.active { display: block; }
+
+        @keyframes slideUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+
+        .info-display-item {
+            background: #111;
+            border: 1px solid var(--border-color);
+            padding: 18px 25px;
+            border-radius: 18px;
+            margin-bottom: 15px;
+        }
+
+        .info-display-item label { 
+            color: var(--text-muted); 
+            font-size: 0.7rem; 
+            text-transform: uppercase; 
+            margin-bottom: 5px; 
+            display: block; 
+        }
+        .info-display-item .value { 
+            color: white; 
+            font-size: 1rem; 
+            font-weight: 500; 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+        }
+        .info-display-item i { color: var(--student-green); width: 20px; }
+
+        .toggle-item {
+            background: #111;
+            border: 1px solid var(--border-color);
+            padding: 20px 30px;
+            border-radius: 25px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .toggle-switch {
+            width: 55px; height: 28px; background: #333; border-radius: 30px; position: relative; cursor: pointer; transition: .3s;
+        }
+        .toggle-switch::after {
+            content: ""; position: absolute; height: 20px; width: 20px; left: 4px; bottom: 4px; background: white; border-radius: 50%; transition: .3s;
+        }
+        .toggle-switch.active { background: var(--student-green); }
+        .toggle-switch.active::after { left: 31px; }
+
+        .btn-salvar-green {
+            background: var(--student-green);
+            color: white; border: none; padding: 18px; border-radius: 15px;  text-transform: uppercase; letter-spacing: 1px; cursor: pointer; width: 100%; transition: 0.3s;
+        }
+        .btn-salvar-green:hover { transform: scale(1.01); filter: brightness(1.1); }
+
+        @media (max-width: 1000px) { .perfil-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body class="dash-body">
+
+    <%- include('../partials/barAluno') %>
+
+    <div class="main-layout">
+        <header class="dash-header">
+            <div class="header-left">
+                <div class="logo"><img src="/IMG/logo3-green.png" alt="AnalisAI" style="height: 40px;"></div>
+            </div>
+            <div class="header-user">
+                <div class="user-profile-group">
+                    <div class="user-details" style="text-align: right; padding-right: 15px;">
+                        <span class="user-name"><strong><%= aluno.nome %></strong></span>
+                        <span class="user-email"><%= aluno.ano_escolar %></span>
+                    </div>
+                    <div class="user-avatar" style="background: var(--student-green); width: 45px; height: 45px; font-size: 1.2rem;">
+                        <%= aluno.nome.charAt(0).toUpperCase() %>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <%- include('../partials/notificacoes', { notificacaoClasse: 'header-icon' }) %>
+                </div>
+            </div>
+        </header>
+
+        <main class="dash-content">
+            <section class="welcome-banner" style="background: linear-gradient(90deg, #1b5e38 0%, #217346 100%); margin-bottom: 40px;">
+                <div class="banner-text">
+                    <h1>Configurações do Estudante</h1>
+                    <p>Gerencie seus dados e preferências de alertas do sistema.</p>
+                </div>
+            </section>
+
+            <div class="perfil-grid">
+                <aside class="perfil-sidebar-card">
+                    <div class="avatar-circle">
+                        <%= aluno.nome.charAt(0).toUpperCase() %>
+                    </div>
+                    
+                    <div class="perfil-info-base">
+                        <h2><%= aluno.nome %></h2>
+                        <p><%= aluno.ano_escolar %></p>
+                    </div>
+
+                    <div class="perfil-stats-row">
+                        <div class="stat-item">
+                            <span>Avaliações</span>
+                            <strong><%= competencias.length %></strong>
+                        </div>
+                        <div class="stat-item">
+                            <span>Presença</span>
+                            <strong><%= aluno.presenca %>%</strong>
+                        </div>
+                    </div>
+
+                    <div style="text-align: left; padding: 0 10px;">
+                        <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 10px;">
+                            <span style="color: var(--text-gray);">Matrícula:</span>
+                            <span style="color: white;"><%= aluno.matricula %></span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; font-size: 0.85rem;">
+                            <span style="color: var(--text-gray);">Conta:</span>
+                            <span class="media-nota apto" style="font-size: 0.6rem; padding: 2px 10px;">ATIVO</span>
+                        </div>
+                    </div>
+                </aside>
+
+                <div class="perfil-main">
+                    <nav class="tabs-nav">
+                        <button class="tab-btn <%= abaAtiva === 'dados' ? 'active' : '' %>" onclick="mudarAba('dados')">Meus Dados</button>
+                        <button class="tab-btn <%= abaAtiva === 'senha' ? 'active' : '' %>" onclick="mudarAba('senha')">Segurança</button>
+                    </nav>
+
+                    <div id="abaDados" class="tab-content <%= abaAtiva === 'dados' ? 'active' : '' %>">
+                        <div class="info-grid">
+                            <div class="info-display-item"><label>Nome Completo</label><div class="value"><i class="fas fa-user"></i> <%= aluno.nome %></div></div>
+                            <div class="info-display-item"><label>Turma / Ano</label><div class="value"><i class="fas fa-graduation-cap"></i> <%= aluno.ano_escolar %></div></div>
+                            <div class="info-display-item"><label>Idade</label><div class="value"><i class="fas fa-calendar-day"></i> <%= aluno.idade %> anos</div></div>
+                        </div>
+                    </div>
+
+                    <div id="abaSenha" class="tab-content <%= abaAtiva === 'senha' ? 'active' : '' %>">
+                        <form action="/aluno/alterar-senha?aba=senha" method="POST" style="max-width: 500px;">
+                            <label style="color: #666; font-size: 0.7rem; margin-bottom: 8px; display: block;">SENHA ATUAL</label>
+                            <input type="password" name="senha_atual" class="filter-input" required>
+                            
+                            <label style="color: #666; font-size: 0.7rem;  margin-top: 20px; margin-bottom: 8px; display: block;">NOVA SENHA</label>
+                            <input type="password" name="nova_senha" class="filter-input" required minlength="6">
+                            
+                            <label style="color: #666; font-size: 0.7rem; margin-top: 20px; margin-bottom: 8px; display: block;">CONFIRMAR NOVA SENHA</label>
+                            <input type="password" name="confirmar_senha" class="filter-input" required>
+                            
+                            <button type="submit" class="btn-secondary-dash" style="margin-top: 30px;"><i class="fas fa-key"></i> Atualizar Senha</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function mudarAba(abaId) {
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('aba' + abaId.charAt(0).toUpperCase() + abaId.slice(1)).classList.add('active');
+            const btns = {'dados':0, 'senha':1};
+            document.querySelectorAll('.tab-btn')[btns[abaId]].classList.add('active');
+            const url = new URL(window.location);
+            url.searchParams.set('aba', abaId);
+            window.history.pushState({}, '', url);
+        }
+
+        function toggleOpt(el, inpId) {
+            el.classList.toggle('active');
+            document.getElementById(inpId).value = el.classList.contains('active');
+        }
+
+        function salvarConfig() {
+            const data = {
+                notificacoes_ativas: document.getElementById('notificacoes_ativas').value === 'true',
+                notificacoes_avaliacoes: document.getElementById('notificacoes_avaliacoes').value === 'true',
+                notificacoes_tarefas: true
+            };
+            fetch('/api/configuracoes-notificacoes', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data)
+            }).then(() => {
+                const al = document.getElementById('ajaxSucesso');
+                al.style.display = 'block';
+                setTimeout(() => al.style.display = 'none', 3000);
+            });
+        }
+    </script>
+</body>
+</html>

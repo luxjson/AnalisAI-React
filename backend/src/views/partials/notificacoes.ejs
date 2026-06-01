@@ -1,0 +1,170 @@
+<link rel="stylesheet" href="/CSS/notificacao.css">
+
+<div class="notificacoes-container">
+    <a class="header-icon" id="notificacoesBtn" onclick="toggleNotificacoes()">
+        <i id="sinoIcone" class="fas fa-bell"></i>
+        <span id="notificacoesBadge" class="notificacoes-badge" style="display: none;">0</span>
+    </a>
+    
+    <div id="notificacoesPopup" class="notificacoes-popup">
+        <div class="notificacoes-header">
+            <h3>NOTIFICAÇÕES</h3>
+            <button onclick="marcarTodasLidas()" class="notificacoes-limpar" title="Marcar todas como lidas">
+                <i class="fas fa-check-double"></i>
+            </button>
+        </div>
+        <div id="notificacoesLista" class="notificacoes-lista">
+            <div class="notificacoes-loading">
+                <i class="fas fa-circle-notch fa-spin"></i> Carregando...
+            </div>
+        </div>
+        <div class="notificacoes-footer">
+            <a href="#" id="notificacoesConfigLink">
+                <i class="fas fa-cog"></i> Configurações
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+let notificacoesInterval;
+
+function toggleNotificacoes() {
+    const popup = document.getElementById('notificacoesPopup');
+    popup.classList.toggle('mostrar');
+    if (popup.classList.contains('mostrar')) {
+        carregarNotificacoes();
+    }
+}
+
+function carregarConfiguracoes() {
+    fetch('/api/configuracoes-notificacoes')
+        .then(response => response.json())
+        .then(config => {
+            const icone = document.getElementById('sinoIcone');
+            if (!config.notificacoes_ativas) {
+                icone.className = 'fas fa-bell-slash';
+                document.getElementById('notificacoesBadge').style.display = 'none';
+            } else {
+                icone.className = 'fas fa-bell';
+            }
+        });
+}
+
+function carregarNotificacoes() {
+    fetch('/api/notificacoes')
+        .then(response => response.json())
+        .then(data => {
+            atualizarListaNotificacoes(data.notificacoes);
+            atualizarBadge(data.totalNaoLidas);
+        });
+}
+
+function atualizarListaNotificacoes(notificacoes) {
+    const lista = document.getElementById('notificacoesLista');
+    
+    if (notificacoes.length === 0) {
+        lista.innerHTML = '<div class="notificacoes-vazio"><i class="far fa-bell-slash"></i> Nenhuma notificação</div>';
+        return;
+    }
+    
+    let html = '';
+    notificacoes.forEach(notif => {
+        const data = new Date(notif.data_criacao).toLocaleString('pt-BR', {
+            day: '2-digit',
+            month: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+        
+        html += `
+            <div class="notificacao-item ${notif.lida ? '' : 'nao-lida'}" data-id="${notif.id}">
+                <div class="notificacao-icone" style="background: ${notif.cor}20; color: ${notif.cor};">
+                    <i class="${notif.icone}"></i>
+                </div>
+                <div class="notificacao-conteudo" onclick="abrirNotificacao('${notif.link}')">
+                    <div class="notificacao-titulo">${notif.titulo}</div>
+                    <div class="notificacao-mensagem">${notif.mensagem}</div>
+                    <div class="notificacao-data">${data}</div>
+                </div>
+                ${!notif.lida ? `
+                <div class="notificacao-acoes">
+                    <button class="notificacao-marcar" onclick="marcarComoLida(${notif.id})" title="Marcar como lida">
+                        <i class="fas fa-check"></i>
+                    </button>
+                </div>
+                ` : ''}
+            </div>
+        `;
+    });
+    
+    lista.innerHTML = html;
+}
+
+function atualizarBadge(total) {
+    const badge = document.getElementById('notificacoesBadge');
+    const icone = document.getElementById('sinoIcone');
+    
+    carregarConfiguracoes();
+    
+    if (total > 0) {
+        badge.style.display = 'flex';
+        badge.textContent = total > 9 ? '9+' : total;
+    } else {
+        badge.style.display = 'none';
+    }
+}
+
+function marcarComoLida(id) {
+    fetch(`/api/notificacoes/marcar-lida/${id}`, { method: 'POST' })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                carregarNotificacoes();
+            }
+        });
+}
+
+function marcarTodasLidas() {
+    fetch('/api/notificacoes/marcar-todas-lidas', { method: 'POST' })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                carregarNotificacoes();
+            }
+        });
+}
+
+function abrirNotificacao(link) {
+    if (link) {
+        window.location.href = link;
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const configLink = document.getElementById('notificacoesConfigLink');
+    if (configLink) {
+        const isAluno = window.location.pathname.includes('/aluno/');
+        configLink.href = isAluno ? '/aluno/config?aba=config' : '/dashboard/config?aba=notificacoes';
+    }
+    
+    carregarConfiguracoes();
+    carregarNotificacoes();
+    notificacoesInterval = setInterval(carregarNotificacoes, 30000);
+    
+    document.addEventListener('click', function(event) {
+        const container = document.querySelector('.notificacoes-container');
+        const popup = document.getElementById('notificacoesPopup');
+        
+        if (container && popup && !container.contains(event.target)) {
+            popup.classList.remove('mostrar');
+        }
+    });
+});
+
+window.addEventListener('beforeunload', function() {
+    if (notificacoesInterval) {
+        clearInterval(notificacoesInterval);
+    }
+});
+</script>

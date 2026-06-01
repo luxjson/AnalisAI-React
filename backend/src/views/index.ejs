@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AnalisAI | Inteligência em Análise Educacional</title>
+    <link rel="stylesheet" href="/CSS/dashboard.css">
+    <link rel="stylesheet" href="/CSS/sidebar.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        * {
+            font-family: 'helvetica', sans-serif;
+            font-weight: normal;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body.dash-body {
+            background-color: #18181b;
+        }
+
+        .home-content-wrapper {
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .card-elite {
+            background: var(--card-bg);
+            border: 2px solid #2e3134;
+            border-radius: 28px;
+            padding: 40px;
+            position: relative;
+            overflow: hidden;
+            transition: 0.3s ease;
+        }
+
+        .card-elite:hover {
+            border-color: #444;
+            transform: translateY(-5px);
+        }
+        .card-line {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 4px;
+            background: #ff0101;
+            border-radius: 0 0 10px 10px;
+        }
+
+        .icon-accent {
+            font-size: 2rem;
+            color: #ff0101;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        details {
+            background: var(--card-bg);
+            border: 2px solid #2e3134;
+            border-radius: 15px;
+            padding: 20px 30px;
+            margin-bottom: 15px;
+            cursor: pointer;
+        }
+        summary { list-style: none; display: flex; justify-content: space-between; color: #fff; font-size: 0.95rem; }
+        summary::after { content: '\f0fe'; font-family: 'Font Awesome 6 Free'; color: #ff0101; }
+
+@media screen and (max-width: 768px) {
+    .main-layout {
+        margin: 0 !important;
+        padding: 20px !important;
+    }
+    .dash-header {
+        flex-direction: column;
+        gap: 20px;
+        text-align: center;
+        padding-bottom: 30px !important;
+    }
+
+    .welcome-banner {
+        padding: 40px 20px !important;
+        margin-bottom: 40px !important;
+        text-align: center;
+    }
+
+    .welcome-banner h1 {
+        font-size: 2.2rem !important;
+    }
+
+    .welcome-banner p {
+        font-size: 1rem !important;
+    }
+
+    .dash-grid {
+        grid-template-columns: 1fr !important;
+        gap: 20px !important;
+    }
+
+    .card-elite {
+        padding: 30px 20px !important;
+    }
+
+    #sobre, #faq {
+        margin-bottom: 60px !important;
+    }
+
+    .dash-footer {
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .sidebar {
+        width: 100%;
+        height: 65px;
+        flex-direction: row;
+        top: auto;
+        bottom: 0;
+        padding: 0 10px;
+        border-right: none;
+        border-top: 1px solid #262626;
+    }
+
+    .sidebar-top, .sidebar-bottom {
+        flex-direction: row;
+        width: auto;
+        gap: 5px;
+    }
+
+    .logo-container, 
+    .divider, 
+    .link-text, 
+    .active-indicator {
+        display: none !important;
+    }
+
+    .side-link {
+        margin-bottom: 0;
+        width: 50px;
+        height: 50px;
+        justify-content: center;
+    }
+
+    .icon-box {
+        width: 42px;
+        height: 42px;
+        font-size: 1.2rem;
+    }
+
+    .modal-new-card {
+        width: 92%;
+        padding: 40px 20px;
+        border-radius: 24px;
+    }
+
+    .modal-new-card::before {
+        width: 60px;
+    }
+
+    .modal-new-logo {
+        width: 130px;
+    }
+
+    .modal-new-info-grid {
+        gap: 20px;
+    }
+
+    .modal-new-text {
+        font-size: 13px;
+    }
+
+    .main-layout {
+        margin-left: 0 !important;
+        margin-bottom: 65px !important;
+    }
+}
+
+@media screen and (max-width: 380px) {
+    .sidebar {
+        padding: 0 5px;
+    }
+    .icon-box {
+        width: 38px;
+        height: 38px;
+    }
+}
+    </style>
+</head>
+<body class="dash-body">
+    <%- include('partials/header') %> 
+
+    <div class="main-layout">
+        
+        <div class="home-content-wrapper">
+            
+            <header class="dash-header" style="border-bottom: 1px solid rgba(255,255,255,0.05); margin-bottom: 40px;">
+                <div class="header-left">
+                    <img src="/IMG/logo3-white.png" alt="AnalisAI" style="height: 35px;">
+                </div>
+                <div class="header-user">
+                    <div class="header-actions">
+                        <a href="/login" class="btn-secondary-dash" style=" color: #fff;">
+                            ACESSAR PAINEL
+                        </a>
+                    </div>
+                </div>
+            </header>
+
+            <main>
+                <section id="inicio" class="welcome-banner" style="padding: 100px 60px; border-radius: 30px; margin-bottom: 80px; position: relative;">
+                    <div class="banner-text">
+                        <h1 style="font-size: 4rem; line-height: 1; margin-bottom: 20px;">
+                            SISTEMA DE <br> ANÁLISE DE AVANÇOS
+                        </h1>
+                        <p style="font-size: 1.2rem; max-width: 600px; opacity: 0.9;">
+                            Organize competências, monitore frequências e alcance objetivos educacionais com a precisão de dados em tempo real.
+                        </p>
+                    </div>
+                </section>
+
+                <section id="sobre" style="margin-bottom: 100px;">
+                    <h2 class="section-title-2" style="margin-bottom: 40px;">PILARES ESTRATÉGICOS</h2>
+                    <div class="dash-grid">
+                        <div class="card-elite">
+                            <div class="card-line"></div>
+                            <i class="fas fa-university icon-accent"></i>
+                            <h3 style="color: #fff; font-size: 1.2rem; margin-bottom: 15px;">SENAI CIC</h3>
+                            <p style="color: #888; font-size: 0.95rem; line-height: 1.6;">Referência em formação profissional, o SENAI CIC atua como hub tecnológico preparando talentos para a Indústria 4.0.</p>
+                        </div>
+
+                        <div class="card-elite">
+                            <div class="card-line"></div>
+                            <i class="fas fa-chart-line icon-accent"></i>
+                            <h3 style="color: #fff; font-size: 1.2rem; margin-bottom: 15px;">ANÁLISE DE DADOS</h3>
+                            <p style="color: #888; font-size: 0.95rem; line-height: 1.6;">Transformamos avaliações complexas em indicadores visuais claros para identificar a aptidão de cada estudante.</p>
+                        </div>
+
+                        <div class="card-elite">
+                            <div class="card-line"></div>
+                            <i class="fas fa-bullseye icon-accent"></i>
+                            <h3 style="color: #fff; font-size: 1.2rem; margin-bottom: 15px;">RESULTADOS</h3>
+                            <p style="color: #888; font-size: 0.95rem; line-height: 1.6;">Acompanhe a evolução das turmas e garanta o sucesso acadêmico com decisões baseadas em dados organizados.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="faq" style="margin-bottom: 120px; max-width: 800px;">
+                    <h2 class="section-title-2" style="margin-bottom: 40px;">DÚVIDAS FREQUENTES</h2>
+                    <div class="faq-container">
+                        <details>
+                            <summary>Como o nível do aluno é calculado?</summary>
+                            <p style="color: #666; padding-top: 15px; font-size: 0.9rem;">O sistema cruza a nota (mínima 7.0) com a presença (mínima 75%) para definir o status.</p>
+                        </details>
+                        <details>
+                            <summary>O sistema é exclusivo para o SENAI?</summary>
+                            <p style="color: #666; padding-top: 15px; font-size: 0.9rem;">Sim, é uma ferramenta personalizada para otimização de fluxos internos do SENAI CIC.</p>
+                        </details>
+                    </div>
+                </section>
+            </main>
+
+            <footer class="dash-footer">
+            <div class="footer-credits">
+                <p>© 2026 AnalisAI
+            </div>
+        </footer>
+        </div>
+    </div>
+
+</body>
+</html>

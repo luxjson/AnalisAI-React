@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AnalisAI - Minha Evolução</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/CSS/sidebar.css">
+    <link rel="stylesheet" href="/CSS/dashboard.css">
+    <style>
+        .filter-bar {
+            display: flex;
+            justify-content: center;
+            margin: -25px 0 35px 0;
+            z-index: 10;
+            position: relative;
+        }
+
+        .periodo-selector {
+            display: inline-flex;
+            background: #161616;
+            padding: 5px;
+            border-radius: 15px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .periodo-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 10px 25px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            letter-spacing: 1px;
+            transition: var(--transition-smooth);
+            text-transform: uppercase;
+        }
+
+        .periodo-btn:hover { color: white; }
+
+        .periodo-btn.active {
+            background: var(--color-apto);
+            color: white;
+            box-shadow: 0 4px 15px rgba(33, 115, 70, 0.3);
+        }
+
+        .banner-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 15px;
+            margin-top: 25px;
+            width: 100%;
+        }
+
+        .mini-stat-card {
+            background: rgba(255, 255, 255, 0.08);
+            padding: 15px;
+            border-radius: 18px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            text-align: left;
+        }
+
+        .mini-stat-card span {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.6);
+            display: block;
+            margin-bottom: 5px;
+            letter-spacing: 1px;
+        }
+
+        .mini-stat-card strong {
+            font-size: 1.4rem;
+            display: block;
+            color: white;
+        }
+
+        .progresso-bar-container {
+            width: 100%;
+            height: 6px;
+            background: #111;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 12px;
+        }
+        .progresso-bar-fill {
+            height: 100%;
+            transition: width 1s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+    </style>
+</head>
+<body class="dash-body">
+
+    <%- include('../partials/barAluno') %>
+
+    <div class="main-layout">
+        <header class="dash-header">
+            <div class="header-left">
+                <div class="logo">
+                    <img src="/IMG/logo3-green.png" alt="AnalisAI" style="height: 40px;">
+                </div>
+            </div>
+            
+            <div class="header-user">
+                <div class="user-profile-group">
+                    <div class="user-avatar" style="background: var(--color-apto);">
+                        <%= aluno.nome.charAt(0).toUpperCase() %>
+                    </div>
+                    <div class="user-details">
+                        <span class="user-name"><strong><%= aluno.nome %></strong></span>
+                        <span class="user-email"><%= aluno.ano_escolar %></span>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <%- include('../partials/notificacoes', { notificacaoClasse: 'header-icon' }) %>
+
+                </div>
+            </div>
+        </header>
+
+        <main class="dash-content">
+            
+            <% if (competencias && competencias.length > 0) { %>
+                
+
+                <section class="welcome-banner" style="background: linear-gradient(90deg, #1b5e38 0%, #217346 100%); padding-bottom: 60px;">
+                    <div class="banner-text">
+                        <h1>Sua Jornada Acadêmica</h1>
+                        <p>Acompanhe em tempo real o seu crescimento e a consolidação das suas competências.</p>
+                        
+                        <div class="banner-stats-grid">
+                            <div class="mini-stat-card">
+                                <span>Melhor Nota</span>
+                                <% let melhor = Math.max(...competencias.map(c => parseFloat(c.nota) || 0)); %>
+                                <strong><%= melhor.toFixed(1) %></strong>
+                            </div>
+                            <div class="mini-stat-card">
+                                <span>Média Geral</span>
+                                <% const somaTotal = competencias.reduce((acc, comp) => acc + (parseFloat(comp.nota) || 0), 0); %>
+                                <strong><%= (somaTotal / competencias.length).toFixed(1) %></strong>
+                            </div>
+                            <div class="mini-stat-card">
+                                <span>Avaliações</span>
+                                <strong><%= competencias.length %></strong>
+                            </div>
+                            <div class="mini-stat-card">
+                                <span>Evolução</span>
+                                <% 
+                                    let primeiraNota = parseFloat(competencias[competencias.length - 1]?.nota) || 0;
+                                    let ultimaNota = parseFloat(competencias[0]?.nota) || 0;
+                                    let diff = ultimaNota - primeiraNota;
+                                %>
+                                <strong><%= diff > 0 ? '+' : '' %><%= diff.toFixed(1) %></strong>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="filter-bar">
+                    <div class="periodo-selector">
+                        <button class="periodo-btn active" onclick="mudarPeriodo('7d', this)">7 Dias</button>
+                        <button class="periodo-btn" onclick="mudarPeriodo('30d', this)">30 Dias</button>
+                        <button class="periodo-btn" onclick="mudarPeriodo('90d', this)">90 Dias</button>
+                        <button class="periodo-btn" onclick="mudarPeriodo('all', this)">Todo o Curso</button>
+                    </div>
+                </section>
+
+                <section class="section-container">
+                    <div class="stats-card" style="padding: 40px;">
+                        <h2 class="section-title-2" style="margin-bottom: 30px;">Desempenho Temporal</h2>
+                        <div style="height: 400px; position: relative;">
+                            <canvas id="evolucaoChart"></canvas>
+                        </div>
+                    </div>
+                </section>
+                <% if (categorias && categorias.length > 0) { %>
+                <section class="section-container">
+                    <h2 class="section-title-2">Performance por Área de Conhecimento</h2>
+                    <div class="dash-grid">
+                        <% categorias.forEach(cat => { 
+                            let mediaCat = cat.media / 10;
+                            let colorClass = mediaCat >= 7 ? 'apto' : (mediaCat >= 5 ? 'desenvolvimento' : 'inapto');
+                        %>
+                            <div class="stats-card" style="border-left: 5px solid var(--color-<%= colorClass %>);">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <h3 style="margin-bottom: 0; color: white;"><%= cat.categoria %></h3>
+                                    <span class="media-nota <%= colorClass %>"><%= mediaCat.toFixed(1) %></span>
+                                </div>
+                                <div class="progresso-bar-container">
+                                    <div class="progresso-bar-fill" style="width: <%= cat.media %>%; background: var(--color-<%= colorClass %>);"></div>
+                                </div>
+                                <p style="font-size: 0.7rem; color: var(--text-muted); margin-top: 10px; text-transform: uppercase;">
+                                    Aproveitamento: <%= cat.media.toFixed(0) %>%
+                                </p>
+                            </div>
+                        <% }); %>
+                    </div>
+                </section>
+                <% } %>
+                <section class="section-container">
+                    <h2 class="section-title-2">Histórico de Registros</h2>
+                    <div class="ranking-list">
+                        <% competencias.forEach(comp => { 
+                            let n = parseFloat(comp.nota) || 0;
+                            let c = n >= 7 ? 'apto' : (n >= 5 ? 'desenvolvimento' : 'inapto');
+                        %>
+                            <div class="ranking-item">
+                                <div class="ranking-position" style="background: rgba(255,255,255,0.05); color: #666;">
+                                    <i class="far fa-calendar-alt"></i>
+                                </div>
+                                <div class="ranking-info">
+                                    <h4><%= comp.nome %></h4>
+                                    <p><%= comp.data_formatada %> • <%= comp.categoria || 'Geral' %></p>
+                                    <% if (comp.observacoes) { %>
+                                        <p style="text-transform: none; color: var(--text-gray); margin-top: 5px; font-style: italic;">
+                                            "<%= comp.observacoes %>"
+                                        </p>
+                                    <% } %>
+                                </div>
+                                <div class="ranking-media">
+                                    <span class="media-nota <%= c %>"><%= n.toFixed(1) %></span>
+                                </div>
+                            </div>
+                        <% }); %>
+                    </div>
+                </section>
+
+            <% } else { %>
+                <div class="stats-card" style="text-align: center; padding: 100px;">
+                    <i class="fas fa-chart-line" style="font-size: 4rem; color: var(--border-color); margin-bottom: 20px;"></i>
+                    <h3>Nenhum dado para exibir</h3>
+                    <p style="color: var(--text-gray);">Suas avaliações aparecerão aqui assim que forem registradas.</p>
+                </div>
+            <% } %>
+        </main>
+
+        <footer class="dash-footer">
+            <div class="footer-actions">
+                <a href="/aluno" class="btn-secondary-dash"><i class="fas fa-arrow-left"></i> VOLTAR AO PAINEL</a>
+            </div>
+            <div class="footer-credits">
+                <p>© 2026 AnalisAI</p>
+            </div>
+        </footer>
+    </div>
+
+    <% if (historico && historico.length > 0) { %>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        var historicoData = <%- JSON.stringify(historico) %>;
+        var myChart;
+        
+        document.addEventListener("DOMContentLoaded", function() {
+            var ctx = document.getElementById('evolucaoChart').getContext('2d');
+            
+            var labels = historicoData.map(function(i) { return i.data; });
+            var medias = historicoData.map(function(i) { return parseFloat(i.media_dia) || 0; });
+            
+            myChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Sua Média',
+                        data: medias,
+                        borderColor: '#217346',
+                        backgroundColor: 'rgba(33, 115, 70, 0.1)',
+                        borderWidth: 4,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: medias.map(function(v) {
+                            return v >= 7 ? '#217346' : (v >= 5 ? '#d4a017' : '#ff0101');
+                        }),
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 6,
+                        pointHoverRadius: 9
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 10,
+                            grid: { color: 'rgba(255,255,255,0.05)' },
+                            ticks: { color: '#888' }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: '#888', maxRotation: 45, minRotation: 45 }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#1a1a1a',
+                            titleColor: '#fff',
+                            borderColor: '#333',
+                            borderWidth: 1
+                        }
+                    }
+                }
+            });
+        });
+
+        function mudarPeriodo(periodo, botao) {
+            document.querySelectorAll('.periodo-btn').forEach(btn => btn.classList.remove('active'));
+            botao.classList.add('active');
+            
+            var hoje = new Date();
+            var dadosFiltrados = [];
+            
+            if (periodo === '7d') {
+                var lim = new Date(); lim.setDate(hoje.getDate() - 7);
+                dadosFiltrados = filtrarData(lim);
+            } else if (periodo === '30d') {
+                var lim = new Date(); lim.setDate(hoje.getDate() - 30);
+                dadosFiltrados = filtrarData(lim);
+            } else if (periodo === '90d') {
+                var lim = new Date(); lim.setDate(hoje.getDate() - 90);
+                dadosFiltrados = filtrarData(lim);
+            } else {
+                dadosFiltrados = historicoData;
+            }
+            
+            myChart.data.labels = dadosFiltrados.map(i => i.data);
+            myChart.data.datasets[0].data = dadosFiltrados.map(i => parseFloat(i.media_dia));
+            myChart.data.datasets[0].pointBackgroundColor = dadosFiltrados.map(i => {
+                let v = parseFloat(i.media_dia);
+                return v >= 7 ? '#217346' : (v >= 5 ? '#d4a017' : '#ff0101');
+            });
+            myChart.update();
+        }
+
+        function filtrarData(limite) {
+            return historicoData.filter(function(item) {
+                var p = item.data.split('/');
+                return new Date(p[2], p[1] - 1, p[0]) >= limite;
+            });
+        }
+    </script>
+    <% } %>
+</body>
+</html>

@@ -1,0 +1,157 @@
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&icon_names=delete" />
+
+<aside class="sidebar">
+    <div class="sidebar-top">
+        <div class="logo-container">
+            <img src="/IMG/sideBarLogo.png" alt="S" class="sideBarLogo">
+        </div>
+        
+        <div class="divider"></div>
+
+        <a href="/dashboard" class="side-link">
+            <div class="icon-box"><i class="fas fa-home"></i></div>
+            <span class="link-text">Início</span>
+            <div class="active-indicator"></div>
+        </a>
+
+        <a href="/dashboard/edit" class="side-link">
+            <div class="icon-box"><i class="fas fa-pen"></i></div>
+            <span class="link-text">Editor</span>
+            <div class="active-indicator"></div>
+        </a>
+
+        <a href="/dashboard/tarefas" class="side-link">
+            <div class="icon-box"><i class="fas fa-tasks"></i></div>
+            <span class="link-text">Tarefas</span>
+            <div class="active-indicator"></div>
+        </a>
+
+        <a href="/dashboard/graficos" class="side-link">
+            <div class="icon-box"><i class="fas fa-chart-bar"></i></div>
+            <span class="link-text">Relatórios</span>
+            <div class="active-indicator"></div>
+        </a>
+
+        <a href="/dashboard/calendario" class="side-link">
+            <div class="icon-box"><i class="fas fa-calendar"></i></div>
+            <span class="link-text">Calendário</span>
+            <div class="active-indicator"></div>
+        </a>
+
+        <% if (userCargo === 'Admin') { %>
+            <a href="/dashboard/usuarios" class="side-link">
+                <div class="icon-box"><i class="fas fa-users"></i></div>
+                <span class="link-text">Usuários</span>
+                <div class="active-indicator"></div>
+            </a>
+        <% } %>
+    </div>
+    
+    <div class="sidebar-bottom">
+        <a href="/dashboard/config" class="side-link">
+            <div class="icon-box"><i class="fas fa-cog"></i></div>
+            <span class="link-text">Ajustes</span>
+            <div class="active-indicator"></div>
+        </a>
+        
+        <a href="/logout" class="side-link exit-link">
+            <div class="icon-box"><i class="fas fa-sign-out-alt"></i></div>
+            <span class="link-text">Sair</span>
+        </a>
+    </div>
+</aside>
+
+<div id="infoModal" class="modal-new-overlay">
+    <div class="modal-new-card">
+        <button class="modal-new-close" onclick="closeModal()">
+            <i class="fas fa-times"></i>
+        </button>
+
+        <div class="modal-new-header" style="justify-content: center;align-items: center;display: flex;flex-direction: column;">
+            <img src="/IMG/logo3-white.png" alt="AnalisAI" class="modal-new-logo">
+            <div class="version-badge">Versão 1.0.4</div>
+        </div>
+
+        <div class="modal-new-body">
+            <p class="modal-new-text">
+                Plataforma avançada para gestão de competências e análise de desempenho educacional. 
+                Desenvolvida para facilitar a visualização de dados e tomada de decisão pedagógica.
+            </p>
+            
+            <div class="modal-new-divider"></div>
+            
+            <div class="modal-new-info-grid">
+                <div class="info-item">
+                    <span>Ambiente</span>
+                    <p>Produção</p>
+                </div>
+                <div class="info-item">
+                    <span>Atualização</span>
+                    <p>Junho 2026</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-new-footer">
+            <p>© 2026 AnalisAI</p>
+            <a href="/dashboard/equipe" class="modal-link">Time de desenvolvimento</a>
+        </div>
+    </div>
+</div>
+
+<div class="mobile-restriction-overlay">
+    <div class="restriction-card">
+        <div class="restriction-line"></div>
+        
+        <img src="/IMG/logo3-white.png" alt="AnalisAI" class="restriction-logo">
+        
+        <div class="restriction-icon-box">
+            <i class="fas fa-desktop pc-icon"></i>
+            <div class="restriction-divider">
+                <i class="fas fa-times"></i>
+            </div>
+            <i class="fas fa-mobile-alt mobile-icon"></i>
+        </div>
+
+        <h2>Plataforma Restrita</h2>
+        <p>O <strong>AnalisAI</strong> é um ecossistema de alta performance para análise de dados educacionais. Para garantir a precisão visual dos gráficos e tabelas, o acesso é exclusivo para <span>Desktop ou notebooks</span>.</p>
+        
+        <div class="restriction-footer">
+            <p>Resolução mínima recomendada: 1024px</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+    const currentPath = window.location.pathname;
+    const links = document.querySelectorAll('.side-link');
+
+    links.forEach(link => {
+        const linkPath = link.getAttribute('href');
+        if (currentPath === linkPath) {
+            link.classList.add('active');
+        } else {
+            link.classList.remove('active');
+        }
+    });
+});
+
+function openModal() {
+        const modal = document.getElementById('infoModal');
+        modal.style.display = 'flex';
+    }
+
+    function closeModal() {
+        const modal = document.getElementById('infoModal');
+        modal.style.display = 'none';
+    }
+
+    window.onclick = function(event) {
+        const modal = document.getElementById('infoModal');
+        if (event.target == modal) {
+            closeModal();
+        }
+    }
+
+</script>

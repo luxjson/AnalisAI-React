@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AnalisAI - Recuperar Senha</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/CSS/dashboard.css">
+    <style>
+        body.dash-body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .login-wrapper {
+            width: 100%;
+            max-width: 450px;
+            animation: fadeInPage 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .login-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 25px;
+            padding: 40px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+        }
+
+        .login-logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .login-logo img {
+            height: 50px;
+        }
+
+        .page-title {
+            text-align: center;
+            font-size: 1.1rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 25px;
+            color: white;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group input {
+            width: 100%;
+            background: #121212;
+            border: 1px solid var(--border-color);
+            padding: 15px;
+            border-radius: 12px;
+            color: white;
+            font-family: var(--font-family);
+            transition: var(--transition-smooth);
+        }
+
+        .input-group input:focus {
+            border-color: var(--primary-red);
+            background: #181818;
+            outline: none;
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 15px;
+            border-radius: 12px;
+            border: none;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            margin-top: 10px;
+            background: var(--primary-red);
+            color: white;
+        }
+
+        .btn-login:hover {
+            background: var(--primary-red-hover);
+            transform: translateY(-2px);
+        }
+
+        .info-box-login {
+            background: rgba(136, 136, 136, 0.05);
+            border: 1px solid #444;
+            color: #888;
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .alert-box {
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 0.85rem;
+            text-align: center;
+        }
+        .error { background: rgba(255, 1, 1, 0.1); border: 1px solid var(--primary-red); color: var(--primary-red); }
+        .success { background: rgba(33, 115, 70, 0.1); border: 1px solid var(--color-apto); color: var(--color-apto); }
+    </style>
+</head>
+<body class="dash-body">
+
+    <div class="login-wrapper">
+        <div style="margin-bottom: 20px;">
+            <a href="/login" class="btn-secondary-dash" style="text-decoration: none;">
+                <i class="fas fa-undo-alt"></i> VOLTAR
+            </a>
+        </div>
+
+        <div class="login-card">
+            <div class="login-logo">
+                <img src="/IMG/logo3-white.png" alt="AnalisAI">
+            </div>
+
+            <h2 class="page-title">Recuperar Senha</h2>
+
+            <% if (error_msg && error_msg.length > 0) { %>
+                <div class="alert-box error"><i class="fas fa-exclamation-circle"></i> <%= error_msg %></div>
+            <% } %>
+            <% if (success_msg && success_msg.length > 0) { %>
+                <div class="alert-box success"><i class="fas fa-check-circle"></i> <%= success_msg %></div>
+            <% } %>
+
+            <div class="info-box-login">
+                <i class="fas fa-info-circle"></i> Informe seu e-mail para solicitar a redefinição da sua senha.
+            </div>
+
+            <form action="/esquecisenha/solicitar" method="POST">
+                <div class="input-group">
+                    <input type="email" name="email" placeholder="SEU E-MAIL CADASTRADO" oninput="this.value = this.value.toLowerCase()" required>
+                </div>
+                
+                <button type="submit" class="btn-login">
+                    SOLICITAR REDEFINIÇÃO
+                </button>
+            </form>
+
+            <p style="text-align: center; margin-top: 25px; color: #555; font-size: 0.8rem;">
+                Um administrador será notificado para validar seu pedido.
+            </p>
+        </div>
+        <footer style="margin-top: 30px; text-align: center;">
+            <a href="/termos" class="btn-secondary-dash" style="font-size: 0.7rem; border: none; background: transparent;">
+                TERMOS DE SERVIÇO
+            </a>
+        </footer>
+    </div>
+
+</body>
+</html>

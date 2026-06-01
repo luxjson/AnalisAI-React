@@ -1,0 +1,150 @@
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<link rel="stylesheet" href="/CSS/sidebar.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&icon_names=delete" />
+
+<aside class="sidebar">
+    <div class="sidebar-top">
+        <div class="logo-container">
+            <img src="/IMG/sideBarLogo.png" alt="S" class="sideBarLogo">
+        </div>
+        
+        <div class="divider"></div>
+
+        <a href="/aluno" class="side-link">
+            <div class="icon-box"><i class="fas fa-home"></i></div>
+            <span class="link-text">Início</span>
+            <div class="active-indicator"></div>
+        </a>
+
+        <a href="/aluno/competencias" class="side-link">
+            <div class="icon-box"><i class="fa-solid fa-medal"></i></div>
+            <span class="link-text">Competências</span>
+            <div class="active-indicator"></div>
+        </a>
+
+        <a href="/aluno/tarefas" class="side-link">
+            <div class="icon-box"><i class="fa-solid fa-tasks"></i></div>
+            <span class="link-text">Tarefas</span>
+            <div class="active-indicator"></div>
+        </a>
+
+        <a href="/aluno/evolucao" class="side-link">
+            <div class="icon-box"><i class="fas fa-chart-line"></i></div>
+            <span class="link-text">Evolução</span>
+            <div class="active-indicator"></div>
+        </a>
+    </div>
+    
+    <div class="sidebar-bottom">
+        <a href="/aluno/config" class="side-link">
+            <div class="icon-box"><i class="fas fa-cog"></i></div>
+            <span class="link-text">Ajustes</span>
+            <div class="active-indicator"></div>
+        </a>
+
+        <a href="javascript:void(0)" class="side-link" onclick="openModal()">
+            <div class="icon-box"><i class="fas fa-info-circle"></i></div>
+            <span class="link-text">Sobre</span>
+            <div class="active-indicator"></div>
+        </a>
+        
+        <a href="/logout" class="side-link exit-link">
+            <div class="icon-box"><i class="fas fa-sign-out-alt"></i></div>
+            <span class="link-text">Sair</span>
+        </a>
+    </div>
+</aside>
+
+<div id="infoModal" class="modal-new-overlay">
+    <div class="modal-new-card">
+        <button class="modal-new-close" onclick="closeModal()">
+            <i class="fas fa-times"></i>
+        </button>
+
+        <div class="modal-new-header" style="justify-content: center;align-items: center;display: flex;flex-direction: column;">
+            <img src="/IMG/logo3-green.png" alt="AnalisAI" class="modal-new-logo">
+            <div class="version-badge" style="background: rgba(33, 115, 70, 0.1); color: #217346;">Versão Aluno 1.0.4</div>
+        </div>
+
+        <div class="modal-new-body">
+            <p class="modal-new-text">
+                Área exclusiva para estudantes. Acompanhe seu desempenho, visualize suas competências 
+                e monitore sua evolução acadêmica em tempo real através de dados integrados.
+            </p>
+            
+            <div class="modal-new-divider"></div>
+            
+            <div class="modal-new-info-grid">
+                <div class="info-item">
+                    <span>Portal</span>
+                    <p>Estudante</p>
+                </div>
+                <div class="info-item">
+                    <span>Status</span>
+                    <p>Sincronizado</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-new-footer">
+            <p>© 2026 AnalisAI • Senai CIC</p>
+            <a href="/aluno/equipe" class="modal-link">Time de desenvolvimento</a>
+        </div>
+    </div>
+</div>
+
+<div class="mobile-restriction-overlay">
+    <div class="restriction-card">
+        <div class="restriction-line"></div>
+        
+        <img src="/IMG/logo3-white.png" alt="AnalisAI" class="restriction-logo">
+        
+        <div class="restriction-icon-box">
+            <i class="fas fa-desktop pc-icon"></i>
+            <div class="restriction-divider">
+                <i class="fas fa-times"></i>
+            </div>
+            <i class="fas fa-mobile-alt mobile-icon"></i>
+        </div>
+
+        <h2>Plataforma Restrita</h2>
+        <p>O <strong>AnalisAI</strong> é um ecossistema de alta performance para análise de dados educacionais. Para garantir a precisão visual dos gráficos e tabelas, o acesso é exclusivo para <span>Desktop ou notebooks</span>.</p>
+        
+        <div class="restriction-footer">
+            <p>Resolução mínima recomendada: 1024px</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const currentPath = window.location.pathname;
+        const links = document.querySelectorAll('.side-link');
+
+        links.forEach(link => {
+            const linkPath = link.getAttribute('href');
+            if (currentPath === linkPath) {
+                link.classList.add('active');
+            } else {
+                link.classList.remove('active');
+            }
+        });
+    });
+
+    function openModal() {
+        const modal = document.getElementById('infoModal');
+        modal.style.display = 'flex';
+    }
+
+    function closeModal() {
+        const modal = document.getElementById('infoModal');
+        modal.style.display = 'none';
+    }
+
+    window.onclick = function(event) {
+        const modal = document.getElementById('infoModal');
+        if (event.target == modal) {
+            closeModal();
+        }
+    }
+</script>

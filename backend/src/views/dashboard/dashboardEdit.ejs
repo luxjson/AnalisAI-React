@@ -1,0 +1,1091 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AnalisAI - Editor de Notas</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/CSS/sidebar.css">
+    <link rel="stylesheet" href="/CSS/dashboard.css">
+    <link rel="stylesheet" href="/CSS/edit.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
+</head>
+<body class="dash-body">
+    <%- include('../partials/barProfessor') %>
+
+    <div class="main-layout">
+        <header class="dash-header">
+            <div class="header-left">
+                <h1>
+                    Editor de Notas
+                </h1>
+            </div>
+            
+            <div class="header-user">
+                <div class="user-profile-group">
+                    <div class="user-details">
+                        <span class="user-name"><strong><%= user %></strong></span>
+                        <span class="user-role" style="color: #888888;"><strong><%= userCargo %></strong></span>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <%- include('../partials/notificacoes', { notificacaoClasse: 'header-icon' }) %>
+                     
+                </div>
+            </div>
+        </header>
+
+        <% if (success_msg && success_msg.length > 0) { %>
+            <div class="alert alert-success">
+                <%= success_msg %>
+                <span class="close-alert" onclick="this.parentElement.style.display='none'">&times;</span>
+            </div>
+        <% } %>
+        <% if (error_msg && error_msg.length > 0) { %>
+            <div class="alert alert-error">
+                <%= error_msg %>
+                <span class="close-alert" onclick="this.parentElement.style.display='none'">&times;</span>
+            </div>
+        <% } %>
+
+        <div class="toolbar">
+            <div class="action-buttons">
+                <button class="btn-icon btn-filter" id="btnFilter" onclick="openFilter()" title="Filtrar">
+                    <i class="fas fa-filter"></i>
+                </button>
+                
+                <button class="btn-secondary-dash" onclick="openAddModal()" title="Adicionar Aluno">
+                    <i class="fas fa-plus"></i> ADICIONAR ALUNO
+                </button>
+
+                <button class="btn-secondary-dash" onclick="openImportModal()" title="Importar Planilha">
+                    <i class="fas fa-file-import"></i> IMPORTAR TABELA
+                </button>
+                
+                <button class="btn-secondary-dash" onclick="exportarTabelaParaExcel()" title="Exportar Tabela">
+                    <i class="fas fa-file-export"></i> EXPORTAR TABELA
+                </button>
+
+                <% if (userCargo === 'Admin') { %>
+                <button class="btn-icon btn-erase" onclick="openEraseModal()" title="Apagar Todos os Dados">
+                    <span class="material-symbols-outlined">delete</span>
+                </button>
+                <% } %>
+            </div>
+
+            <div class="search-container">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchInput" placeholder="Pesquisar aluno...">
+            </div>
+        </div>
+
+        <div id="importModal" class="modal-overlay">
+            <div class="modal-content">
+                <button class="close-btn" onclick="closeImportModal()">
+                    <i class="fas fa-times-circle"></i>
+                </button>
+                
+                <h2 class="section-title-2" style="text-align: center; margin-bottom: 30px; font-size: 1.2rem;">
+                    IMPORTAR PLANILHA
+                </h2>
+
+                <a href="/baixar-modelo-importacao" class="btn-secondary-dash" style="display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 10px; margin-bottom: 15px; text-decoration: none; height: 55px;">
+                    <i class="fas fa-download"></i>
+                    BAIXAR MODELO
+                </a>
+
+                <div class="file-drop-area" onclick="document.getElementById('fileInput').click()" style="padding: 25px; margin: 15px 0;">
+                    <i class="fas fa-cloud-upload-alt" style="font-size: 2rem; color: #555;"></i>
+                    <span class="file-msg" style="font-size: 0.8rem; color: #888;">Clique ou arraste</span>
+                    <span style="color: #666; font-size: 0.7rem;">.xlsx, .xls, .csv</span>
+                    <input type="file" id="fileInput" accept=".xlsx,.xls,.csv" style="display: none;">
+                </div>
+                
+                <div id="fileName" class="file-name" style="font-size: 0.75rem; padding: 6px; text-align: center; color: var(--success-green); background: rgba(33,115,70,0.1); border-radius: 8px; margin-bottom: 10px;"></div>
+
+                <div style="margin: 15px 0; text-align: center;">
+                    <label style="display: inline-flex; align-items: center; gap: 5px; color: var(--text-white); cursor: pointer; font-size: 0.8rem;">
+                        <input type="checkbox" id="primeiraLinhaCabecalho" checked style="accent-color: var(--success-green); width: 16px; height: 16px;">
+                        1ª linha cabeçalho
+                    </label>
+                </div>
+
+                <button type="button" class="btn-secondary-dash" onclick="importarPlanilha()" style="width: 100%; padding: 12px; font-size: 0.9rem; margin-top: 5px; justify-content: center; height: 55px">
+                    <i class="fas fa-file-import"></i> IMPORTAR
+                </button>
+
+                <p style="color: #666; font-size: 0.65rem; text-align: center; margin-top: 20px;">
+                    <i class="fas fa-info-circle" style="color: var(--success-green);"></i>
+                    Use o modelo para formato correto
+                </p>
+            </div>
+        </div>
+
+        <div id="previewImportModal" class="modal-overlay">
+            <div class="modal-content" style="max-width: 600px; border-color: var(--success-green);">
+                <button class="close-btn" onclick="closePreviewModal()">
+                    <i class="fas fa-times-circle"></i>
+                </button>
+                
+                <h2 class="section-title-2" style="text-align: center; margin-bottom: 20px; color: #217346;">
+                    PRÉ-VISUALIZAÇÃO
+                </h2>
+                
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <i class="fas fa-check-circle" style="font-size: 3rem; color: #217346;"></i>
+                    <p style="color: #fff; font-size: 1.1rem; margin: 10px 0;" id="previewCount"></p>
+                </div>
+
+                <div style="background: #080808; border: 2px solid #217346; border-radius: 12px; padding: 15px; margin-bottom: 20px; max-height: 300px; overflow-y: auto;">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="border-bottom: 1px solid #333;">
+                                <th style="padding: 8px; text-align: left; color: #888;">NOME</th>
+                                <th style="padding: 8px; text-align: left; color: #888;">ANO</th>
+                                <th style="padding: 8px; text-align: left; color: #888;">COMPETÊNCIAS</th>
+                            </tr>
+                        </thead>
+                        <tbody id="previewList"></tbody>
+                    </table>
+                </div>
+
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button class="btn-secondary-dash" onclick="confirmarImportacao()" style="flex: 1; justify-content: center; background: #21734610; border-color: #217346; color: white;">
+                        <i class="fas fa-check"></i> CONFIRMAR
+                    </button>
+                    <button class="btn-secondary-dash" onclick="closePreviewModal()" style="flex: 1; justify-content: center;">
+                        <i class="fas fa-times"></i> CANCELAR
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <main class="edit-content">
+            <div class="table-container">
+                <table class="alunos-table" id="alunosTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>ALUNO</th>
+                            <th>ANO ESCOLAR</th>
+                            <th>IDADE</th>
+                            <th>MÉDIA DE NOTAS</th>
+                            <th>PRESENÇA (%)</th>
+                            <th>NÍVEL</th>
+                            <th>AÇÕES</th>
+                        </tr>
+                    </thead>
+                    <tbody id="alunosTableBody">
+                        <% if (alunos && alunos.length > 0) { %>
+                            <% alunos.forEach(aluno => { 
+                                let mediaCompetencias = 0;
+                                let temCompetencias = aluno.competencias && aluno.competencias.length > 0;
+                                
+                                if (temCompetencias) {
+                                    const soma = aluno.competencias.reduce((acc, comp) => acc + parseFloat(comp.nota), 0);
+                                    mediaCompetencias = soma / aluno.competencias.length;
+                                }
+                                
+                                let nivelReal = 'EM DESENVOLVIMENTO';
+                                let nivelClass = 'em-desenvolvimento';
+                                
+                                if (mediaCompetencias >= 7 && aluno.presenca >= 75) {
+                                    nivelReal = 'APTO';
+                                    nivelClass = 'apto';
+                                } else if (mediaCompetencias < 5 || aluno.presenca < 50) {
+                                    nivelReal = 'INAPTO';
+                                    nivelClass = 'inapto';
+                                }
+                            %>
+                                <tr data-aluno-id="<%= aluno.id %>" data-presenca="<%= aluno.presenca %>">
+                                    <td><%= aluno.id %></td>
+                                    <td><%= aluno.nome %></td>
+                                    <td><%= aluno.ano_escolar %></td>
+                                    <td><%= aluno.idade %></td>
+                                    <td class="media-notas">
+                                        <% if (temCompetencias) { %>
+                                            <strong><%= mediaCompetencias.toFixed(1) %></strong>
+                                            <small style="color: #888; display: block;">(<%= aluno.competencias.length %> competências)</small>
+                                        <% } else { %>
+                                            <span style="color: #888;">Sem competências</span>
+                                        <% } %>
+                                    </td>
+                                    <td><%= aluno.presenca %>%</td>
+                                    <td class="status <%= nivelClass %>"><%= nivelReal %></td>
+                                    <td class="td-actions">
+                                        <button type="button" class="btn-table-edit" onclick="openEditModal('<%= aluno.id %>', '<%= aluno.nome %>', '<%= aluno.presenca %>')" title="Editar Aluno">
+                                            <i class="fa-solid fa-pen"></i>
+                                        </button>
+                                        <a href="javascript:void(0)" onclick="confirmDelete('<%= aluno.id %>', '<%= aluno.nome %>')" class="delete-link" title="Excluir Aluno">
+                                            <span class="material-symbols-outlined">delete</span>
+                                        </a>
+                                    </td>
+                                </tr>
+                            <% }); %>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="competencias-section">
+                <h2 class="section-title-2">COMPETÊNCIAS POR ALUNO</h2>
+                <div class="search-container" style="margin-bottom: 25px; max-width: 400px;">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="competenciasSearchInput" placeholder="Procurar competências de aluno...">
+                </div>
+                <div class="competencias-grid">
+                    <% if (alunos && alunos.length > 0) { %>
+                        <% alunos.forEach(aluno => { 
+                            if (aluno.competencias && aluno.competencias.length > 0) { %>
+                                <div class="competencia-card" data-aluno-nome="<%= aluno.nome.toLowerCase() %>">
+                                    <div class="competencia-header">
+                                        <h3><%= aluno.nome %></h3>
+                                        <span class="competencia-ano"><%= aluno.ano_escolar %></span>
+                                    </div>
+                                    <div class="competencia-list">
+                                        <% aluno.competencias.forEach(comp => { 
+                                            let compClass = 'em-desenvolvimento';
+                                            if (comp.nota >= 7) compClass = 'apto';
+                                            else if (comp.nota < 5) compClass = 'inapto';
+                                        %>
+                                            <div class="competencia-item">
+                                                <div class="competencia-info">
+                                                    <span class="competencia-nome"><%= comp.nome %></span>
+                                                    <% if (comp.observacoes) { %>
+                                                        <span class="competencia-desc"><%= comp.observacoes.substring(0, 30) %><%= comp.observacoes.length > 30 ? '...' : '' %></span>
+                                                    <% } %>
+                                                </div>
+                                                <span class="competencia-nota <%= compClass %>">
+                                                    <%= parseFloat(comp.nota).toFixed(1) %>
+                                                </span>
+                                            </div>
+                                        <% }); %>
+                                    </div>
+                                </div>
+                            <% } %>
+                        <% }); %>
+                    <% } %>
+                </div>
+            </div>
+            
+            <div class="evolution-container">
+                <h2 class="section-title-2">EVOLUÇÃO INDIVIDUAL POR ALUNO</h2>
+                <div class="search-container" style="margin-bottom: 25px; max-width: 400px;">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="chartSearchInput" placeholder="Procurar gráfico de aluno...">
+                </div>
+                <div class="charts-grid">
+                    <% if (alunos && alunos.length > 0) { %>
+                        <% alunos.forEach(aluno => { 
+                            if (aluno.competencias && aluno.competencias.length > 0) { %>
+                                <div class="chart-card" data-aluno-nome="<%= aluno.nome.toLowerCase() %>">
+                                    <h3>ALUNO: <%= aluno.nome %></h3>
+                                    <div class="chart-wrapper" style="position: relative; height: 300px; width: 100%;">
+                                        <canvas id="chart-<%= aluno.id %>"></canvas>
+                                    </div>
+                                </div>
+                            <% } %>
+                        <% }); %>
+                    <% } %>
+                </div>
+            </div>
+        </main>
+
+        <div id="filterModal" class="modal-overlay">
+            <div class="modal-content">
+                <button class="close-btn" onclick="closeFilter()"><i class="fas fa-times-circle"></i></button>
+                <h2 class="section-title-2">FILTRAR LISTA</h2>
+                <div class="filter-options">
+                    <label>ANO ESCOLAR:</label>
+                    <select id="filterAno" class="filter-input">
+                        <option value="">TODOS OS ANOS</option>
+                        <option value="1º MÉDIO">1º MÉDIO</option>
+                        <option value="2º MÉDIO">2º MÉDIO</option>
+                        <option value="3º MÉDIO">3º MÉDIO</option>
+                        <option value="9º FUNDAMENTAL">9º FUNDAMENTAL</option>
+                    </select>
+                    <label style="margin-top: 15px; display: block;">STATUS:</label>
+                    <select id="filterStatus" class="filter-input">
+                        <option value="">TODOS OS NÍVEIS</option>
+                        <option value="APTO">APTO</option>
+                        <option value="INAPTO">INAPTO</option>
+                        <option value="EM DESENVOLVIMENTO">EM DESENVOLVIMENTO</option>
+                    </select>
+                    <div style="display: flex; gap: 10px; margin-top: 25px;">
+                        <button class="btn-secondary-dash" onclick="applyFilter()" style="flex: 2; justify-content: center;">FILTRAR</button>
+                        <button class="btn-secondary-dash" onclick="clearFilters()" style="flex: 1; justify-content: center;">LIMPAR</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="addAlunoModal" class="modal-overlay">
+            <div class="modal-content">
+                <button class="close-btn" onclick="closeAddModal()"><i class="fas fa-times-circle"></i></button>
+                <h2 class="section-title-2">CADASTRAR ALUNO</h2>
+                <form action="/dashboard/add-aluno" method="POST" class="filter-options">
+                    <label>NOME COMPLETO:</label>
+                    <input type="text" name="nome" class="filter-input" pattern="[A-Za-zÀ-ÖØ-öø-ÿ\s]+" oninput="this.value = this.value.replace(/[^A-Za-zÀ-ÖØ-öø-ÿ\s]/g, '')" placeholder="Nome do aluno" required>
+                    <label style="margin-top: 15px; display: block;">ANO ESCOLAR:</label>
+                    <select name="ano_escolar" class="filter-input">
+                        <option value="1º MÉDIO">1º MÉDIO</option>
+                        <option value="2º MÉDIO">2º MÉDIO</option>
+                        <option value="3º MÉDIO">3º MÉDIO</option>
+                        <option value="9º FUNDAMENTAL">9º FUNDAMENTAL</option>
+                    </select>
+                    <div style="display: flex; gap: 10px; margin-top: 15px;">
+                        <div style="flex: 1;"><label>IDADE:</label><input type="number" name="idade" min="14" max="20" class="filter-input" required></div>
+                    </div>
+                    <button type="submit" class="btn-secondary-dash" style="margin-top: 30px; width: 100%; justify-content: center;">FINALIZAR CADASTRO</button>
+                </form>
+            </div>
+        </div>
+
+        <div id="editAlunoModal" class="modal-overlay">
+            <div class="modal-content" style="max-width: 450px; padding: 30px;">
+                <button class="close-btn" onclick="closeEditModal()"><i class="fas fa-times-circle"></i></button>
+                
+                <h2 class="section-title-2" style="font-size: 1.1rem; margin-bottom: 20px;">
+                    <i class="fas fa-user-edit"></i> <span id="editNomeAluno"></span>
+                </h2>
+                <div class="edit-tabs" style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px; border-bottom: none;">
+                    <button class="tab-btn active" onclick="showEditTab('info')" id="btn-tab-info">ACESSO</button>
+                    <button class="tab-btn" onclick="showEditTab('notas')" id="btn-tab-notas">NOTAS</button>
+                    <button class="tab-btn" onclick="showEditTab('add')" id="btn-tab-add">LANÇAR</button>
+                    <button class="tab-btn" onclick="showEditTab('presenca')" id="btn-tab-presenca">FALTAS</button>
+                </div>
+
+                <div style="margin-top: 20px; border-top: 1px solid var(--border-color); padding-top: 15px;">
+            
+                    <div id="editInfoTab" class="tab-content active">
+                        <div id="loginInfo"></div>
+                    </div>
+
+                    <div id="editNotasTab" class="tab-content" style="display: none;">
+                        <h3 style="font-size: 0.7rem; color: var(--text-gray); margin-bottom: 10px; letter-spacing: 1px;">COMPETÊNCIAS REGISTRADAS</h3>
+                        <div id="competenciasListContainer" class="competencias-list-edit" style="max-height: 200px;"></div>
+                    </div>
+
+                    <div id="editAddTab" class="tab-content" style="display: none;">
+                        <form action="/dashboard/adicionar-competencia" method="POST" class="filter-options">
+                            <input type="hidden" name="aluno_id" id="editAlunoIdComp">
+                            
+                            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 10px;">
+                                <div>
+                                    <label style="margin-top: 0;">COMPETÊNCIA:</label>
+                                    <select name="competencia_id" class="filter-input" style="padding: 10px; font-size: 0.8rem;" required>
+                                        <option value="">SELECIONE...</option>
+                                        <% if (listaCompetencias && listaCompetencias.length > 0) { %>
+                                            <% listaCompetencias.forEach(comp => { %>
+                                                <option value="<%= comp.id %>"><%= comp.nome %></option>
+                                            <% }); %>
+                                        <% } %>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label style="margin-top: 0;">NOTA:</label>
+                                    <input type="number" step="0.1" name="nota" min="0" max="10" class="filter-input" style="padding: 10px; font-size: 0.8rem;" required>
+                                </div>
+                            </div>
+                            
+                            <label style="margin-top: 10px;">OBSERVAÇÕES:</label>
+                            <textarea name="observacoes" class="filter-input" style="height: 60px; padding: 10px; font-size: 0.8rem;" placeholder="Feedback..."></textarea>
+                            
+                            <button type="submit" class="btn-secondary-dash" style="margin-top: 15px; height: 45px; justify-content: center; font-size: 0.75rem;">REGISTRAR NOTA</button>
+                        </form>
+                    </div>
+
+                    <div id="editPresencaTab" class="tab-content" style="display: none;">
+                        <form action="/dashboard/atualizar-presenca" method="POST" class="filter-options">
+                            <input type="hidden" name="aluno_id" id="editAlunoId">
+                            <label style="margin-top: 0;">FREQUÊNCIA ATUAL (%)</label>
+                            <input type="number" name="presenca" id="editPresencaInput" min="0" max="100" class="filter-input" style="padding: 10px;" required>
+                            <button type="submit" class="btn-secondary-dash" style="margin-top: 20px; height: 45px; justify-content: center; font-size: 0.75rem;">ATUALIZAR STATUS</button>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <div id="exportSuccessModal" class="modal-overlay">
+            <div class="modal-content" style="display: flex; flex-direction: column; align-items: center;">
+                <button class="close-btn" onclick="closeExportModal()"><i class="fas fa-times-circle"></i></button>
+                <h2 class="modal-title-success" style="color: #fff;">Relatório Gerado</h2>
+                <p class="modal-text-success">A planilha foi processada com sucesso e o seu download já começou.</p>
+                <button class="btn-secondary-dash" onclick="closeExportModal()">CONCLUIR</button>
+            </div>
+        </div>
+
+        <footer class="dash-footer">
+            <a href="javascript:void(0)" onclick="exportarTabelaParaExcel()" class="btn-secondary-dash">
+                <i class="fas fa-file-export"></i> EXPORTAR PLANILHA COMPLETA
+            </a>
+            <div class="footer-credits">
+                <p>© 2026 AnalisAI
+            </div>
+        </footer>
+    </div>
+
+    <div id="eraseAllModal" class="modal-overlay">
+    <div class="modal-content modal-small">
+        <button class="close-btn" onclick="closeEraseModal()"><i class="fas fa-times-circle"></i></button>
+        <div class="modal-icon-warning">
+            <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <h2 class="modal-title-warning">APAGAR TUDO?</h2>
+        <p class="modal-text-warning">
+            Esta ação irá remover <strong>TODOS</strong> os alunos, notas e competências atribuídas.<br>
+            As competências padrão do sistema serão mantidas.<br>
+            <span style="color: #ff0101;">Esta operação não pode ser desfeita.</span>
+        </p>
+        <div class="modal-actions" style="gap: 10px; display: flex; flex-direction: column; align-items: center;">
+            <form action="/dashboard/erase-all" method="POST">
+                <button type="submit" class="btn-secondary-dash" style="justify-content: center; height: 50px; width: 300px;">
+                    <span class="material-symbols-outlined">delete</span> SIM, APAGAR TUDO
+                </button>
+            </form>
+            <button onclick="closeEraseModal()" class="btn-secondary-dash" style="justify-content: center; height: 50px; width: 300px;">
+                CANCELAR
+            </button>
+        </div>
+    </div>
+</div>
+
+    <div id="errorModal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 450px; border-color: #ff0101;">
+            <button class="close-btn" onclick="closeErrorModal()">
+                <i class="fas fa-times-circle"></i>
+            </button>
+            
+            <div style="text-align: center;">
+                <div style="font-size: 4rem; color: #ff0101; margin-bottom: 15px;">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                
+                <h2 class="section-title-2" style="color: #ff0101; margin-bottom: 15px;" id="errorTitulo">
+                    ERRO
+                </h2>
+                
+                <p style="color: #888; font-size: 1rem; margin-bottom: 10px;" id="errorMensagem">
+                    Ocorreu um erro
+                </p>
+                
+                <div style="background: #1a1a1a; border-radius: 8px; padding: 10px; margin: 15px 0;">
+                    <p style="color: #ff0101; font-size: 0.85rem;" id="errorDetalhe">
+                        
+                    </p>
+                </div>
+
+                <button class="btn-action" onclick="closeErrorModal()" style="width: 100%; justify-content: center; border-color: #ff0101; color: #ff0101;">
+                    <i class="fas fa-times"></i> FECHAR
+                </button>
+            </div>
+        </div>
+    </div>
+
+<div id="loadingModal" class="modal-overlay">
+    <div class="modal-content" style="max-width: 400px; text-align: center; border-color: #217346;">
+        <div style="padding: 30px;">
+            <div class="loading-spinner" style="margin: 20px auto;">
+                <i class="fas fa-circle-notch fa-spin" style="font-size: 4rem; color: #217346;"></i>
+            </div>
+            <h3 style="color: #fff; margin-bottom: 15px;">IMPORTANDO DADOS</h3>
+            <p style="color: #888; margin-bottom: 20px;">Processando alunos e competências...</p>
+            <div style="width: 100%; height: 6px; background: #1a1a1a; border-radius: 10px; overflow: hidden;">
+                <div id="loadingBar" style="width: 0%; height: 100%; background: #217346; transition: width 0.3s ease;"></div>
+            </div>
+            <p id="loadingStatus" style="color: #888; font-size: 0.8rem; margin-top: 10px;">0% concluído</p>
+        </div>
+    </div>
+</div>
+
+
+    <script>
+
+        function openLoadingModal() {
+    document.getElementById('loadingModal').style.display = 'flex';
+    document.getElementById('loadingBar').style.width = '0%';
+    document.getElementById('loadingStatus').innerText = '0% concluído';
+}
+
+function closeLoadingModal() {
+    document.getElementById('loadingModal').style.display = 'none';
+}
+
+function updateLoadingBar(percent, texto) {
+    document.getElementById('loadingBar').style.width = percent + '%';
+    document.getElementById('loadingStatus').innerText = texto || percent + '% concluído';
+}
+
+        function openErrorModal(titulo, mensagem, detalhe) {
+            document.getElementById('errorTitulo').innerText = titulo || 'ERRO';
+            document.getElementById('errorMensagem').innerText = mensagem || 'Ocorreu um erro inesperado';
+            document.getElementById('errorDetalhe').innerText = detalhe || '';
+            document.getElementById('errorModal').style.display = 'flex';
+        }
+
+        function closeErrorModal() {
+            document.getElementById('errorModal').style.display = 'none';
+        }
+        
+        function openImportModal() {
+            document.getElementById('importModal').style.display = 'flex';
+            document.getElementById('fileInput').value = '';
+            document.getElementById('fileName').innerText = '';
+        }
+
+        function closeImportModal() {
+            document.getElementById('importModal').style.display = 'none';
+        }
+
+        document.getElementById('fileInput')?.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            document.getElementById('fileName').innerText = file ? `📄 ${file.name}` : '';
+        });
+
+        const dropArea = document.querySelector('.file-drop-area');
+        if (dropArea) {
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, preventDefaults, false);
+            });
+            
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            
+            dropArea.addEventListener('drop', function(e) {
+                const file = e.dataTransfer.files[0];
+                document.getElementById('fileInput').files = e.dataTransfer.files;
+                document.getElementById('fileName').innerText = file ? `📄 ${file.name}` : '';
+            });
+        }
+
+        function openPreviewModal() {
+            document.getElementById('previewImportModal').style.display = 'flex';
+        }
+
+        function closePreviewModal() {
+            document.getElementById('previewImportModal').style.display = 'none';
+        }
+
+        document.getElementById('fileInput')?.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            document.getElementById('fileName').innerText = file ? `📄 ${file.name}` : '';
+        });
+
+        let alunosParaImportar = [];
+
+        async function importarPlanilha() {
+    const fileInput = document.getElementById('fileInput');
+    const file = fileInput.files[0];
+    
+    if (!file) {
+        openErrorModal('ERRO', 'Selecione um arquivo primeiro!', '');
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = async function(e) {
+        try {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, { type: 'array' });
+            const primeiraAba = workbook.SheetNames[0];
+            const planilha = workbook.Sheets[primeiraAba];
+            
+            const linhas = XLSX.utils.sheet_to_json(planilha, { header: 1 });
+            
+            let linhaAlunos = -1;
+            for (let i = 0; i < Math.min(30, linhas.length); i++) {
+                const linha = linhas[i];
+                if (linha && linha[0] === 'ID' && linha[1] === 'ALUNO') {
+                    linhaAlunos = i;
+                    break;
+                }
+            }
+            
+            if (linhaAlunos === -1) {
+                openErrorModal('FORMATO INVÁLIDO', 'Formato de planilha não reconhecido. Use o modelo baixado.', '');
+                return;
+            }
+            
+            alunosParaImportar = [];
+            const anosValidos = ['1º MÉDIO', '2º MÉDIO', '3º MÉDIO', '9º FUNDAMENTAL'];
+            
+            for (let i = linhaAlunos + 1; i < linhas.length; i++) {
+                const linha = linhas[i];
+                if (!linha || linha.length === 0) continue;
+                
+                const primeiraCelula = String(linha[0] || '').toUpperCase();
+                if (primeiraCelula.includes('HISTÓRICO') || primeiraCelula.includes('INSTRUÇÕES')) {
+                    break;
+                }
+                
+                const nome = String(linha[1] || '').trim().toUpperCase();
+                if (!nome || nome.length < 2 || nome === 'ALUNO') continue;
+                
+                const anoEscolar = String(linha[2] || '').trim();
+                
+                if (anoEscolar && !anosValidos.includes(anoEscolar)) {
+                    openErrorModal('ANO ESCOLAR INVÁLIDO', `"${anoEscolar}" não é permitido`, 'Use: 1º MÉDIO, 2º MÉDIO, 3º MÉDIO, 9º FUNDAMENTAL');
+                    return;
+                }
+                
+                const idade = parseInt(linha[3]) || 15;
+                if (idade < 10 || idade > 20) {
+                    openErrorModal('IDADE INVÁLIDA', `Idade ${idade} inválida`, 'A idade deve estar entre 10 e 20 anos');
+                    return;
+                }
+                
+                let presenca = 100;
+                if (linha[5]) {
+                    const presencaStr = String(linha[5]).replace('%', '').trim();
+                    presenca = parseInt(presencaStr) || 100;
+                    if (presenca < 0 || presenca > 100) {
+                        openErrorModal('PRESENÇA INVÁLIDA', `Presença ${presenca}% inválida`, 'A presença deve estar entre 0% e 100%');
+                        return;
+                    }
+                }
+                
+                const competenciasStr = String(linha[7] || '').trim();
+                const competencias = [];
+                
+                if (competenciasStr && competenciasStr !== 'Sem competências') {
+                    const partes = competenciasStr.split(';').slice(0, 10);
+                    for (const parte of partes) {
+                        const compParts = parte.split(':');
+                        if (compParts.length >= 2) {
+                            const nomeComp = compParts[0].trim().substring(0, 50);
+                            const notaComp = parseFloat(compParts[1].trim()) || 0;
+                            if (nomeComp && notaComp > 0 && notaComp <= 10) {
+                                competencias.push({
+                                    nome: nomeComp,
+                                    nota: Math.min(10, Math.max(0, notaComp))
+                                });
+                            }
+                        }
+                    }
+                }
+                
+                if (competencias.length > 10) {
+                    competencias.length = 10;
+                }
+                
+                alunosParaImportar.push({
+                    nome: nome.substring(0, 100),
+                    ano_escolar: anoEscolar,
+                    idade: idade,
+                    presenca: presenca,
+                    competencias: competencias
+                });
+            }
+            
+            if (alunosParaImportar.length === 0) {
+                openErrorModal('NENHUM ALUNO', 'Nenhum aluno encontrado na planilha!', '');
+                return;
+            }
+            
+            if (alunosParaImportar.length > 100) {
+                alunosParaImportar.length = 100;
+            }
+            
+            let previewHtml = '';
+            alunosParaImportar.slice(0, 5).forEach(aluno => {
+                previewHtml += `<tr>
+                    <td style="padding: 8px; border-bottom: 1px solid #222; color: #fff;">${aluno.nome}</td>
+                    <td style="padding: 8px; border-bottom: 1px solid #222; color: #888;">${aluno.ano_escolar}</td>
+                    <td style="padding: 8px; border-bottom: 1px solid #222; color: #888;">${aluno.competencias.length}</td>
+                </tr>`;
+            });
+            
+            if (alunosParaImportar.length > 5) {
+                previewHtml += `<tr><td colspan="3" style="padding: 8px; text-align: center; color: #888;">... mais ${alunosParaImportar.length - 5} alunos</td></tr>`;
+            }
+            
+            document.getElementById('previewList').innerHTML = previewHtml;
+            document.getElementById('previewCount').innerHTML = `${alunosParaImportar.length} alunos encontrados`;
+            
+            closeImportModal();
+            openPreviewModal();
+            
+        } catch (erro) {
+            console.error('Erro detalhado:', erro);
+            openErrorModal('ERRO AO PROCESSAR', erro.message, '');
+        }
+    };
+    
+    reader.readAsArrayBuffer(file);
+}
+
+async function confirmarImportacao() {
+    if (alunosParaImportar.length === 0) return;
+    
+    closePreviewModal();
+    openLoadingModal();
+    
+    updateLoadingBar(10, 'Preparando dados...');
+    
+    const total = alunosParaImportar.length;
+    let processados = 0;
+    
+    const response = await fetch('/dashboard/importar-dados-completos', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ alunos: alunosParaImportar })
+    });
+    
+    updateLoadingBar(70, 'Salvando no banco de dados...');
+    
+    const resultado = await response.json();
+    
+    if (resultado.sucesso) {
+        updateLoadingBar(100, 'Importação concluída!');
+        
+        setTimeout(() => {
+            location.reload();
+        }, 500);
+    } else {
+        closeLoadingModal();
+        openErrorModal('ERRO NA IMPORTAÇÃO', resultado.erro, '');
+    }
+}
+
+        function openEraseModal() {
+            document.getElementById('eraseAllModal').style.display = 'flex';
+        }
+
+        function closeEraseModal() {
+            document.getElementById('eraseAllModal').style.display = 'none';
+        }
+
+        document.getElementById('competenciasSearchInput').addEventListener('keyup', function() {
+            const searchTerm = this.value.toLowerCase();
+            document.querySelectorAll(".competencia-card").forEach(card => {
+                const studentName = card.getAttribute('data-aluno-nome') || '';
+                card.style.display = studentName.includes(searchTerm) ? "" : "none";
+            });
+        });
+
+        document.getElementById('chartSearchInput').addEventListener('keyup', function() {
+            const searchTerm = this.value.toLowerCase();
+            document.querySelectorAll(".chart-card").forEach(card => {
+                const studentName = card.getAttribute('data-aluno-nome') || '';
+                card.style.display = studentName.includes(searchTerm) ? "" : "none";
+            });
+        });
+
+        function openExportModal() { document.getElementById('exportSuccessModal').style.display = 'flex'; }
+        function closeExportModal() { document.getElementById('exportSuccessModal').style.display = 'none'; }
+        function openFilter() { document.getElementById('filterModal').style.display = 'flex'; }
+        function closeFilter() { document.getElementById('filterModal').style.display = 'none'; }
+        function openAddModal() { document.getElementById('addAlunoModal').style.display = 'flex'; }
+        function closeAddModal() { document.getElementById('addAlunoModal').style.display = 'none'; }
+        
+function openEditModal(id, nome, presenca) {
+    fetch(`/dashboard/aluno-dados/${id}`)
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('editAlunoId').value = id;
+            document.getElementById('editAlunoIdComp').value = id;
+            document.getElementById('editNomeAluno').innerText = nome.toUpperCase();
+            document.getElementById('editPresencaInput').value = presenca;
+            const loginInfo = document.getElementById('loginInfo');
+            if (loginInfo) {
+                loginInfo.innerHTML = `
+                    <div style="background: #1a1a1a; padding: 15px; border-radius: 12px; border-left: 4px solid var(--primary-red);">
+                        <p style="color: #888; font-size: 0.7rem; text-transform: uppercase; margin-bottom: 10px;">Credenciais do Aluno</p>
+                        <p style="color: #fff; margin-bottom: 8px; font-size: 0.9rem;">
+                            <i class="fas fa-envelope" style="color: var(--primary-red); width: 20px;"></i> 
+                            ${data.email}
+                        </p>
+                        <p style="color: #fff; font-size: 0.9rem;">
+                            <i class="fas fa-lock" style="color: var(--primary-red); width: 20px;"></i> 
+                            ${data.senha}
+                        </p>
+                    </div>
+                `;
+            }
+            carregarCompetencias(id);
+            showEditTab('info');
+            document.getElementById('editAlunoModal').style.display = 'flex';
+        })
+        .catch(error => {
+            console.error('Erro ao carregar dados:', error);
+            alert('Erro ao carregar dados do aluno.');
+        });
+}
+
+function showEditTab(tabName) {
+    const contents = document.querySelectorAll('#editAlunoModal .tab-content');
+    contents.forEach(content => {
+        content.style.display = 'none';
+        content.classList.remove('active');
+    });
+    const buttons = document.querySelectorAll('#editAlunoModal .tab-btn');
+    buttons.forEach(btn => {
+        btn.classList.remove('active');
+    });
+    const targetId = 'edit' + tabName.charAt(0).toUpperCase() + tabName.slice(1) + 'Tab';
+    const activeContent = document.getElementById(targetId);
+    
+    if (activeContent) {
+        activeContent.style.display = 'block';
+        activeContent.classList.add('active');
+    }
+    const activeBtn = document.getElementById('btn-tab-' + tabName);
+    if (activeBtn) {
+        activeBtn.classList.add('active');
+    }
+}
+
+        function closeEditModal() { 
+            document.getElementById('editAlunoModal').style.display = 'none'; 
+        }
+
+
+
+        function carregarCompetencias(alunoId) {
+            fetch(`/dashboard/competencias-aluno/${alunoId}`)
+                .then(response => response.json())
+                .then(data => {
+                    const container = document.getElementById('competenciasListContainer');
+                    if (data.length === 0) {
+                        container.innerHTML = '<p style="color: #888; text-align: center;">Nenhuma competência registrada ainda.</p>';
+                    } else {
+                        let html = '';
+                        data.forEach(comp => {
+                            const notaClass = comp.nota >= 7 ? 'apto' : (comp.nota >= 5 ? 'desenvolvimento' : 'inapto');
+                            html += `
+                                <div class="competencia-edit-item">
+                                    <div class="competencia-edit-info">
+                                        <span class="competencia-edit-nome">${comp.nome}</span>
+                                        ${comp.observacoes ? `<small style="color:#888">${comp.observacoes}</small>` : ''}
+                                    </div>
+                                    <div style="display: flex; align-items: center; gap: 10px;">
+                                        <span class="competencia-edit-nota ${notaClass}">${parseFloat(comp.nota).toFixed(1)}</span>
+                                        <a href="/dashboard/deletar-competencia/${comp.id}" class="btn-delete-comp" onclick="return confirm('Remover esta competência?')">
+                                            <span class="material-symbols-outlined">delete</span>
+                                        </a>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                        container.innerHTML = html;
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                    document.getElementById('competenciasListContainer').innerHTML = 
+                        '<p style="color: #ff0101; text-align: center;">Erro ao carregar competências.</p>';
+                });
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const dataAlunos = <%- JSON.stringify(alunos) %>;
+            
+            dataAlunos.forEach(aluno => {
+                const canvas = document.getElementById(`chart-${aluno.id}`);
+                if (!canvas || !aluno.competencias || aluno.competencias.length === 0) return;
+                
+                const ctx = canvas.getContext('2d');
+                const labels = aluno.competencias.map(c => c.nome.substring(0, 10));
+                const valores = aluno.competencias.map(c => parseFloat(c.nota));
+
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Nota',
+                            data: valores,
+                            backgroundColor: valores.map(v => 
+                                v >= 7 ? 'rgba(0, 255, 0, 0.5)' : 
+                                v >= 5 ? 'rgba(255, 255, 0, 0.5)' : 
+                                'rgba(255, 0, 0, 0.5)'
+                            ),
+                            borderColor: '#ff0101',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: { beginAtZero: true, max: 10, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#888' } },
+                            x: { grid: { display: false }, ticks: { color: '#888', maxRotation: 45, minRotation: 45 } }
+                        },
+                        plugins: { legend: { display: false } }
+                    }
+                });
+            });
+        });
+
+        function applyFilter() {
+            const selAno = document.getElementById('filterAno').value;
+            const selStatus = document.getElementById('filterStatus').value;
+            
+            document.querySelectorAll("#alunosTableBody tr").forEach(row => {
+                const ano = row.cells[2].textContent.trim();
+                const status = row.cells[6].textContent.trim();
+                row.style.display = ((selAno === "" || ano === selAno) && (selStatus === "" || status === selStatus)) ? "" : "none";
+            });
+            
+            document.querySelectorAll(".chart-card, .competencia-card").forEach(card => {
+                const nomeAluno = card.querySelector("h3")?.textContent.replace('ALUNO:', '').trim() || '';
+                let encontrou = false;
+                
+                document.querySelectorAll("#alunosTableBody tr").forEach(row => {
+                    if (row.style.display !== "none") {
+                        const nomeTabela = row.cells[1].textContent.trim();
+                        if (nomeTabela === nomeAluno) encontrou = true;
+                    }
+                });
+                
+                card.style.display = encontrou ? "" : "none";
+            });
+            
+            closeFilter();
+        }
+
+        function clearFilters() {
+            document.getElementById('filterAno').value = "";
+            document.getElementById('filterStatus').value = "";
+            document.querySelectorAll("#alunosTableBody tr, .chart-card, .competencia-card").forEach(el => el.style.display = "");
+            closeFilter();
+        }
+
+        document.getElementById('searchInput').addEventListener('keyup', function() {
+            const filter = this.value.toUpperCase();
+            document.querySelectorAll("#alunosTableBody tr").forEach(row => {
+                row.style.display = row.cells[1].textContent.toUpperCase().includes(filter) ? "" : "none";
+            });
+        });
+
+        function confirmDelete(id, nome) {
+            if (confirm(`Remover aluno ${nome}?`)) window.location.href = `/dashboard/delete-aluno/${id}`;
+        }
+
+        async function exportarTabelaParaExcel() {
+            const workbook = new ExcelJS.Workbook();
+            const worksheet = workbook.addWorksheet('Relatório AnalisAI');
+            const dataAlunos = <%- JSON.stringify(alunos) %>;
+
+            worksheet.columns = [
+                { key: 'A', width: 10 },
+                { key: 'B', width: 20 },
+                { key: 'C', width: 20 },
+                { key: 'D', width: 24 },
+                { key: 'E', width: 12 },
+                { key: 'F', width: 12 },
+                { key: 'G', width: 25 },
+                { key: 'H', width: 120 }
+            ];
+
+            try {
+                const response = await fetch('/IMG/xls-logo.png');
+                const blob = await response.blob();
+                const arrayBuffer = await blob.arrayBuffer();
+                const logoId = workbook.addImage({ buffer: arrayBuffer, extension: 'png' });
+                worksheet.addImage(logoId, { tl: { col: 0, row: 0 }, br: { col: 3, row: 6 } });
+                
+                worksheet.mergeCells('D2:G4');
+                const titleCell = worksheet.getCell('D2');
+                titleCell.value = 'RELATÓRIO GERAL DE DESEMPENHO POR COMPETÊNCIA';
+                titleCell.font = { size: 16, bold: true, color: { argb: 'FFFF0101' } };
+                titleCell.alignment = { vertical: 'middle', horizontal: 'center' };
+            } catch (e) { console.log("Erro logo"); }
+
+            const headerRow = worksheet.getRow(8);
+            headerRow.values = ['ID', 'ALUNO', 'ANO ESCOLAR', 'IDADE', 'MÉDIA', 'PRESENÇA', 'NÍVEL', 'COMPETÊNCIAS'];
+            headerRow.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+            headerRow.eachCell(cell => {
+                cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFF0101' } };
+                cell.alignment = { horizontal: 'center', vertical: 'middle' };
+            });
+
+            dataAlunos.forEach((aluno, index) => {
+                let mediaCompetencias = 0;
+                let competenciasStr = '';
+                
+                if (aluno.competencias && aluno.competencias.length > 0) {
+                    const soma = aluno.competencias.reduce((acc, comp) => acc + parseFloat(comp.nota), 0);
+                    mediaCompetencias = (soma / aluno.competencias.length).toFixed(1);
+                    competenciasStr = aluno.competencias.map(comp => 
+                        `${comp.nome}: ${parseFloat(comp.nota).toFixed(1)}`
+                    ).join('; ');
+                } else {
+                    mediaCompetencias = '0.0';
+                    competenciasStr = 'Sem competências';
+                }
+
+                let nivel = 'EM DESENVOLVIMENTO';
+                if (mediaCompetencias >= 7 && aluno.presenca >= 75) {
+                    nivel = 'APTO';
+                } else if (mediaCompetencias < 5 || aluno.presenca < 50) {
+                    nivel = 'INAPTO';
+                }
+
+                const row = worksheet.getRow(9 + index);
+                row.values = [aluno.id, aluno.nome, aluno.ano_escolar, aluno.idade, mediaCompetencias, aluno.presenca + '%', nivel, competenciasStr];
+
+                row.eachCell((cell, colNum) => {
+                    cell.alignment = { horizontal: colNum === 2 ? 'left' : 'center', vertical: 'middle' };
+                });
+            });
+
+            let currentRow = 9 + dataAlunos.length + 2;
+
+            dataAlunos.forEach(aluno => {
+                const titleRow = worksheet.getRow(currentRow);
+                titleRow.getCell(1).value = `HISTÓRICO INDIVIDUAL: ${aluno.nome.toUpperCase()}`;
+                titleRow.getCell(1).font = { bold: true, color: { argb: 'FFFF0101' } };
+                worksheet.mergeCells(`A${currentRow}:H${currentRow}`);
+                currentRow++;
+
+                const compHeaderRow = worksheet.getRow(currentRow);
+                compHeaderRow.getCell(2).value = 'COMPETÊNCIAS';
+                compHeaderRow.getCell(7).value = 'NOTA';
+                compHeaderRow.getCell(2).font = { bold: true };
+                compHeaderRow.getCell(7).font = { bold: true };
+                compHeaderRow.getCell(2).alignment = { horizontal: 'left' };
+                compHeaderRow.getCell(7).alignment = { horizontal: 'center' };
+                currentRow++;
+
+                if (aluno.competencias && aluno.competencias.length > 0) {
+                    aluno.competencias.forEach(comp => {
+                        const compRow = worksheet.getRow(currentRow);
+                        compRow.getCell(2).value = comp.nome;
+                        compRow.getCell(3).value = comp.observacoes || 'Avaliação inicial';
+                        compRow.getCell(7).value = parseFloat(comp.nota).toFixed(1);
+                        
+                        compRow.getCell(2).alignment = { horizontal: 'left' };
+                        compRow.getCell(3).alignment = { horizontal: 'left' };
+                        compRow.getCell(7).alignment = { horizontal: 'center' };
+                        compRow.getCell(7).font = { bold: true };
+                        
+                        worksheet.mergeCells(`C${currentRow}:F${currentRow}`);
+                        currentRow++;
+                    });
+                } else {
+                    const emptyRow = worksheet.getRow(currentRow);
+                    emptyRow.getCell(2).value = 'Sem competências';
+                    emptyRow.getCell(3).value = '-';
+                    emptyRow.getCell(7).value = '-';
+                    worksheet.mergeCells(`C${currentRow}:F${currentRow}`);
+                    currentRow++;
+                }
+
+                currentRow += 2;
+            });
+
+            const buffer = await workbook.xlsx.writeBuffer();
+            saveAs(new Blob([buffer]), `Relatorio_Completo_AnalisAI.xlsx`);
+            openExportModal();
+        }
+    </script>
+</body>
+</html>

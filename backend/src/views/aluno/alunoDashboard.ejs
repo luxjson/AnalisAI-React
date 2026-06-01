@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AnalisAI - Painel do Aluno</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/CSS/sidebar.css">
+    <link rel="stylesheet" href="/CSS/dashboard.css">
+</head>
+<body class="dash-body">
+
+    <%- include('../partials/barAluno') %>
+
+    <div class="main-layout">
+        <header class="dash-header">
+            <div class="header-left">
+                <div class="logo">
+                    <img src="/IMG/logo3-green.png" alt="AnalisAI" style="height: 40px;">
+                </div>
+            </div>
+            
+            <div class="header-user">
+                <div class="user-profile-group">
+                    <div class="user-avatar" style="background: var(--color-apto); shadow: 0 4px 10px rgba(33, 115, 70, 0.3);">
+                        <%= aluno.nome.charAt(0).toUpperCase() %>
+                    </div>
+                    <div class="user-details">
+                        <span class="user-name"><strong><%= aluno.nome %></strong></span>
+                        <span class="user-email"><%= aluno.ano_escolar %></span>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <%- include('../partials/notificacoes', { notificacaoClasse: 'header-icon' }) %>
+
+                </div>
+            </div>
+        </header>
+
+        <main class="dash-content">
+            <section class="welcome-banner" style="background: linear-gradient(90deg, #1b5e38 0%, #217346 100%);">
+                <div class="banner-text">
+                    <h1>Olá, <%= aluno.nome.split(' ')[0].toUpperCase() %>!</h1>
+                    <p>Confira seu desempenho acadêmico, competências avaliadas e sua evolução no curso.</p>
+                </div>
+            </section>
+            <section class="section-container">
+                <h2 class="section-title-2">INFORMAÇÕES GERAIS</h2>
+                <div class="dash-grid">
+                    <div class="stats-card">
+                        <h3>MATRÍCULA</h3>
+                        <p class="stats-number"><%= aluno.matricula %></p>
+                        <i class="fas fa-hashtag icon-bg"></i>
+                    </div>
+
+                    <% 
+                        let mediaGeralNum = parseFloat(mediaGeral) || 0;
+                        let mediaClass = mediaGeralNum >= 7 ? 'apto' : (mediaGeralNum >= 5 ? 'desenvolvimento' : 'inapto');
+                    %>
+                    <div class="stats-card <%= mediaClass %>">
+                        <h3>MÉDIA GERAL</h3>
+                        <p class="stats-number"><%= mediaGeralNum.toFixed(1) %></p>
+                        <i class="fas fa-graduation-cap icon-bg"></i>
+                    </div>
+
+                    <div class="stats-card">
+                        <h3>PRESENÇA</h3>
+                        <p class="stats-number"><%= aluno.presenca %>%</p>
+                        <i class="fas fa-calendar-check icon-bg"></i>
+                    </div>
+                </div>
+            </section>
+            <section class="section-container">
+                <h2 class="section-title-2">RESUMO DE PERFORMANCE</h2>
+                <div class="dash-grid">
+                    <div class="stats-card">
+                        <h3>AVALIADAS</h3>
+                        <p class="stats-number"><%= competencias.length %></p>
+                        <i class="fas fa-clipboard-check icon-bg"></i>
+                    </div>
+                    
+                    <div class="stats-card apto">
+                        <h3>APTAS</h3>
+                        <p class="stats-number">
+                            <%= competencias.filter(c => parseFloat(c.nota) >= 7).length %>
+                        </p>
+                        <i class="fas fa-check-double icon-bg"></i>
+                    </div>
+                    
+                    <div class="stats-card inapto">
+                        <h3>MELHORAR</h3>
+                        <p class="stats-number">
+                            <%= competencias.filter(c => parseFloat(c.nota) < 5).length %>
+                        </p>
+                        <i class="fas fa-exclamation-triangle icon-bg"></i>
+                    </div>
+                </div>
+            </section>
+
+            <% if (competencias && competencias.length > 0) { %>
+            <section class="section-container">
+                <h2 class="section-title-2">MAPA DE COMPETÊNCIAS</h2>
+                <div class="stats-card" style="padding: 40px;">
+                    <div style="height: 400px; position: relative;">
+                        <canvas id="radarChart"></canvas>
+                    </div>
+                </div>
+            </section>
+            <% } %>
+
+            <section class="section-container">
+                <h2 class="section-title-2">MINHAS NOTAS DETALHADAS</h2>
+                
+                <% if (competencias && competencias.length > 0) { %>
+                    <div class="ranking-list">
+                        <% competencias.forEach((comp, index) => { 
+                            let notaNum = parseFloat(comp.nota) || 0;
+                            let statusClass = notaNum >= 7 ? 'apto' : (notaNum >= 5 ? 'desenvolvimento' : 'inapto');
+                        %>
+                            <div class="ranking-item">
+                                <div class="ranking-position"><%= index + 1 %></div>
+                                <div class="ranking-info">
+                                    <h4><%= comp.nome %></h4>
+                                    <p>Avaliado em: <%= comp.data_formatada %></p>
+                                    <% if (comp.observacoes) { %>
+                                        <p style="text-transform: none; color: var(--text-gray); margin-top: 5px;">
+                                            <i class="fas fa-comment-dots"></i> "<%= comp.observacoes %>"
+                                        </p>
+                                    <% } %>
+                                </div>
+                                <div class="ranking-media">
+                                    <span class="media-nota <%= statusClass %>">
+                                        <%= notaNum.toFixed(1) %>
+                                    </span>
+                                </div>
+                            </div>
+                        <% }); %>
+                    </div>
+                <% } else { %>
+                    <div class="stats-card" style="text-align: center; padding: 60px;">
+                        <i class="fas fa-clipboard-list" style="font-size: 3rem; color: var(--border-color); margin-bottom: 20px;"></i>
+                        <p style="color: var(--text-gray);">Nenhuma competência avaliada ainda.</p>
+                    </div>
+                <% } %>
+            </section>
+        </main>
+
+        <footer class="dash-footer">
+            <div class="footer-actions">
+                <a href="/aluno/evolucao" class="btn-secondary-dash">
+                    <i class="fas fa-chart-line"></i> VER EVOLUÇÃO
+                </a>
+                <a href="/manuais/aluno" class="btn-secondary-dash">
+                    <i class="fas fa-book-open"></i> MANUAL DO ALUNO
+                </a>
+            </div>
+            <div class="footer-credits">
+                <p>© 2026 AnalisAI</p>
+            </div>
+        </footer>
+    </div>
+
+<% if (competencias && competencias.length > 0) { %>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const ctx = document.getElementById('radarChart').getContext('2d');
+    
+    const labels = <%- JSON.stringify(competencias.map(c => c.nome)) %>;
+    const valores = <%- JSON.stringify(competencias.map(c => parseFloat(c.nota) || 0)) %>;
+    
+    new Chart(ctx, {
+        type: 'radar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Seu Desempenho',
+                data: valores,
+                backgroundColor: 'rgba(33, 115, 70, 0.2)', 
+                borderColor: '#217346', 
+                borderWidth: 3,
+                pointBackgroundColor: '#fff',
+                pointBorderColor: '#217346',
+                pointRadius: 4,
+                pointHoverRadius: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                r: {
+                    angleLines: {
+                        color: 'rgba(255, 255, 255, 0.1)'
+                    },
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.05)',
+                        circular: true
+                    },
+                    ticks: {
+                        display: false,
+                        maxTicksLimit: 5
+                    },
+                    pointLabels: {
+                        color: '#aaa', 
+                        font: {
+                            family: 'helvetica',
+                            size: 12,
+                            weight: 'bold'
+                        }
+                    },
+                    suggestedMin: 0,
+                    suggestedMax: 10
+                }
+            }
+        }
+    });
+});
+</script>
+<% } %>
+</body>
+</html>
